@@ -1,11 +1,23 @@
 import OpenApiParser from '@readme/openapi-parser'
 import { HttpMethods } from './enums/http-methods'
 import { MethodDetailsHelper } from './utils/check-method-details'
+import { CorrectPayloadBuilder } from './utils/payload-builder'
+
+type AllPayloads = {
+  // Paths
+  [key: string]: {
+    // Methods
+    [key: string]: {
+      [key: string]: any
+    }[]
+  }
+}
 
 const app = async () => {
   try {
-    const apiSpec = await OpenApiParser.validate('openapi.example.json')
+    const allPayloads: AllPayloads = {}
 
+    const apiSpec = await OpenApiParser.validate('openapi.example.json')
     // Iterating paths
     if (apiSpec.paths) {
       for (const [path, methods] of Object.entries(apiSpec.paths)) {
@@ -22,12 +34,31 @@ const app = async () => {
           }
 
           const schema = MethodDetailsHelper.getSchema(methodDetails as any)
-          console.log(schema)
+          const payload = CorrectPayloadBuilder.generateObjectPayload(schema)
+
+          if (allPayloads[path] === undefined) {
+            allPayloads[path] = {
+              [method]: [payload],
+            }
+          } else {
+            if (allPayloads[path][method] === undefined) {
+              allPayloads[path] = {
+                [method]: [payload],
+              }
+            } else {
+              allPayloads[path][method] = [
+                ...allPayloads[path][method],
+                payload,
+              ]
+            }
+          }
         }
       }
     } else {
       throw new Error('Paths are not found')
     }
+
+    console.log(allPayloads)
   } catch (error) {
     console.error(error)
   }
