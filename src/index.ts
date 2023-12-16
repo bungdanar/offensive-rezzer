@@ -1,7 +1,10 @@
 import OpenApiParser from '@readme/openapi-parser'
 import { HttpMethods } from './enums/http-methods'
 import { MethodDetailsHelper } from './utils/check-method-details'
-import { CorrectPayloadBuilder } from './utils/payload-builder'
+import {
+  CorrectPayloadBuilder,
+  MissingPayloadBuilder,
+} from './utils/payload-builder'
 
 type AllPayloads = {
   // Paths
@@ -34,21 +37,28 @@ const app = async () => {
           }
 
           const schema = MethodDetailsHelper.getSchema(methodDetails as any)
-          const payload = CorrectPayloadBuilder.generateObjectPayload(schema)
+          const correctPayload =
+            CorrectPayloadBuilder.generateObjectPayload(schema)
+
+          const missingPayloads = MissingPayloadBuilder.generateObjectPayload(
+            correctPayload,
+            schema
+          )
 
           if (allPayloads[path] === undefined) {
             allPayloads[path] = {
-              [method]: [payload],
+              [method]: [correctPayload, ...missingPayloads],
             }
           } else {
             if (allPayloads[path][method] === undefined) {
               allPayloads[path] = {
-                [method]: [payload],
+                [method]: [correctPayload, ...missingPayloads],
               }
             } else {
               allPayloads[path][method] = [
                 ...allPayloads[path][method],
-                payload,
+                correctPayload,
+                ...missingPayloads,
               ]
             }
           }
