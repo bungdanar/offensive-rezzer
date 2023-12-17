@@ -1,17 +1,9 @@
 import OpenApiParser from '@readme/openapi-parser'
 import { HttpMethods } from './enums/http-methods'
 import { MethodDetailsHelper } from './utils/check-method-details'
-import { CorrectPayloadBuilder } from './utils/payload-builder'
-
-type AllPayloads = {
-  // Paths
-  [key: string]: {
-    // Methods
-    [key: string]: {
-      [key: string]: any
-    }[]
-  }
-}
+import { CorrectPayloadBuilder } from './utils/correct-payload-builder'
+import { AllPayloads } from './types/common'
+import { MissingPayloadBuilder } from './utils/missing-payload-builder'
 
 const app = async () => {
   try {
@@ -34,21 +26,28 @@ const app = async () => {
           }
 
           const schema = MethodDetailsHelper.getSchema(methodDetails as any)
-          const payload = CorrectPayloadBuilder.generateObjectPayload(schema)
+          const correctPayload =
+            CorrectPayloadBuilder.generateObjectPayload(schema)
+
+          const missingPayloads = MissingPayloadBuilder.generateObjectPayload(
+            correctPayload,
+            schema
+          )
 
           if (allPayloads[path] === undefined) {
             allPayloads[path] = {
-              [method]: [payload],
+              [method]: [correctPayload, ...missingPayloads],
             }
           } else {
             if (allPayloads[path][method] === undefined) {
               allPayloads[path] = {
-                [method]: [payload],
+                [method]: [correctPayload, ...missingPayloads],
               }
             } else {
               allPayloads[path][method] = [
                 ...allPayloads[path][method],
-                payload,
+                correctPayload,
+                ...missingPayloads,
               ]
             }
           }

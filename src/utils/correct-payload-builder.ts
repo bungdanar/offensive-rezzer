@@ -7,14 +7,7 @@ import {
   StringFormats,
   StringRange,
 } from '../enums/openapi-data-types'
-
-type InputSpec = {
-  [key: string]: any
-}
-
-type ObjectPayload = {
-  [key: string]: any
-}
+import { InputSpec, ObjectPayload } from '../types/common'
 
 export class CorrectPayloadBuilder {
   private static generateStringPayload = (spec: InputSpec): string => {
