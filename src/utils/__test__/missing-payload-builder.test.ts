@@ -165,7 +165,7 @@ it('returns expected payload variants for object with nested simple array', () =
   expect(result).toEqual(expected)
 })
 
-it('returns expected payload variants for object with nested simple array', () => {
+it('returns expected payload variants for object with nested array of object', () => {
   const objectSchema: InputSpec = {
     type: 'object',
     properties: {
