@@ -36,6 +36,42 @@ export class InvalidPayloadBuilder {
     return payloads
   }
 
+  private static generateArrayOfObjectPayloadVariants = (
+    prop: string,
+    objSpec: InputSpec,
+    correctPayload: ObjectPayload
+  ): ObjectPayload[] => {
+    const payloads: ObjectPayload[] = []
+
+    // Assign primitive value
+    const copy = structuredClone(correctPayload)
+    copy[prop] = this.getInvalidValueForComplex()
+
+    // Assign array of primitive value
+    const copy2 = structuredClone(correctPayload)
+    copy2[prop] = [this.getInvalidValueForComplex()]
+
+    payloads.push(copy, copy2)
+
+    const nestedCopy = structuredClone(correctPayload[prop])
+    if (nestedCopy[0]) {
+      const nestedObjVariants = this.generateObjectPayload(
+        nestedCopy[0],
+        objSpec
+      )
+
+      for (let i = 0; i < nestedObjVariants.length; i++) {
+        const nObj = nestedObjVariants[i]
+
+        const freshCopy = structuredClone(correctPayload)
+        freshCopy[prop] = [nObj]
+        payloads.push(freshCopy)
+      }
+    }
+
+    return payloads
+  }
+
   public static generateArrayPayload = (
     prop: string,
     spec: InputSpec,
@@ -60,6 +96,17 @@ export class InvalidPayloadBuilder {
 
           payloads.push(copy, copy2)
 
+          break
+        }
+
+        case SchemaDataTypes.OBJECT: {
+          payloads.push(
+            ...this.generateArrayOfObjectPayloadVariants(
+              prop,
+              items,
+              correctPayload
+            )
+          )
           break
         }
 

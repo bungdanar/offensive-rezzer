@@ -187,3 +187,107 @@ it('returns invalid-type payload variants for object with nested simple array', 
 
   expect(result).toEqual(expected)
 })
+
+it('returns invalid-type payload variants for object with nested array of object', () => {
+  const objectSchema: InputSpec = {
+    type: 'object',
+    properties: {
+      name: {
+        type: 'string',
+      },
+      age: {
+        type: 'integer',
+      },
+      monsters: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string',
+            },
+            age: {
+              type: 'integer',
+            },
+          },
+        },
+      },
+    },
+  }
+
+  const correctPayload: ObjectPayload = {
+    name: 'danar',
+    age: 33,
+    monsters: [
+      {
+        name: 'charmender',
+        age: 1,
+      },
+    ],
+  }
+
+  const INVALID_VALUE_FOR_PRIMITIVE =
+    InvalidPayloadBuilder.getInvalidValueForPrimitive()
+  const INVALID_VALUE_FOR_COMPLEX =
+    InvalidPayloadBuilder.getInvalidValueForComplex()
+
+  const expected: ObjectPayload[] = [
+    {
+      name: INVALID_VALUE_FOR_PRIMITIVE,
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: INVALID_VALUE_FOR_PRIMITIVE,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: INVALID_VALUE_FOR_COMPLEX,
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [INVALID_VALUE_FOR_COMPLEX],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: INVALID_VALUE_FOR_PRIMITIVE,
+          age: 1,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: INVALID_VALUE_FOR_PRIMITIVE,
+        },
+      ],
+    },
+  ]
+
+  const result = InvalidPayloadBuilder.generateObjectPayload(
+    correctPayload,
+    objectSchema
+  )
+
+  expect(result).toEqual(expected)
+})
