@@ -4,6 +4,7 @@ import { MethodDetailsHelper } from './utils/check-method-details'
 import { CorrectPayloadBuilder } from './utils/correct-payload-builder'
 import { AllPayloads } from './types/common'
 import { MissingPayloadBuilder } from './utils/missing-payload-builder'
+import { InvalidPayloadBuilder } from './utils/invalid-payload-builder'
 
 const app = async () => {
   try {
@@ -34,20 +35,32 @@ const app = async () => {
             schema
           )
 
+          const invalidTypePayloads =
+            InvalidPayloadBuilder.generateObjectPayload(correctPayload, schema)
+
           if (allPayloads[path] === undefined) {
             allPayloads[path] = {
-              [method]: [correctPayload, ...missingPayloads],
+              [method]: [
+                correctPayload,
+                ...missingPayloads,
+                ...invalidTypePayloads,
+              ],
             }
           } else {
             if (allPayloads[path][method] === undefined) {
               allPayloads[path] = {
-                [method]: [correctPayload, ...missingPayloads],
+                [method]: [
+                  correctPayload,
+                  ...missingPayloads,
+                  ...invalidTypePayloads,
+                ],
               }
             } else {
               allPayloads[path][method] = [
                 ...allPayloads[path][method],
                 correctPayload,
                 ...missingPayloads,
+                ...invalidTypePayloads,
               ]
             }
           }

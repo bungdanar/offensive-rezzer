@@ -1,7 +1,7 @@
 import { InputSpec, ObjectPayload } from '../../types/common'
-import { MissingPayloadBuilder } from '../missing-payload-builder'
+import { InvalidPayloadBuilder } from '../invalid-payload-builder'
 
-it('returns missing-field payload variants for simple object', () => {
+it('returns invalid-type payload variants for simple object', () => {
   const objectSchema: InputSpec = {
     type: 'object',
     properties: {
@@ -19,16 +19,21 @@ it('returns missing-field payload variants for simple object', () => {
     age: 33,
   }
 
+  const INVALID_VALUE_FOR_PRIMITIVE =
+    InvalidPayloadBuilder.getInvalidValueForPrimitive()
+
   const expected: ObjectPayload[] = [
     {
+      name: INVALID_VALUE_FOR_PRIMITIVE,
       age: 33,
     },
     {
       name: 'danar',
+      age: INVALID_VALUE_FOR_PRIMITIVE,
     },
   ]
 
-  const result = MissingPayloadBuilder.generateObjectPayload(
+  const result = InvalidPayloadBuilder.generateObjectPayload(
     correctPayload,
     objectSchema
   )
@@ -36,7 +41,7 @@ it('returns missing-field payload variants for simple object', () => {
   expect(result).toEqual(expected)
 })
 
-it('returns missing-field payload variants for nested object', () => {
+it('returns invalid-type payload variants for nested object', () => {
   const objectSchema: InputSpec = {
     type: 'object',
     properties: {
@@ -69,8 +74,14 @@ it('returns missing-field payload variants for nested object', () => {
     },
   }
 
+  const INVALID_VALUE_FOR_PRIMITIVE =
+    InvalidPayloadBuilder.getInvalidValueForPrimitive()
+  const INVALID_VALUE_FOR_COMPLEX =
+    InvalidPayloadBuilder.getInvalidValueForComplex()
+
   const expected: ObjectPayload[] = [
     {
+      name: INVALID_VALUE_FOR_PRIMITIVE,
       age: 33,
       monster: {
         name: 'charmender',
@@ -79,6 +90,7 @@ it('returns missing-field payload variants for nested object', () => {
     },
     {
       name: 'danar',
+      age: INVALID_VALUE_FOR_PRIMITIVE,
       monster: {
         name: 'charmender',
         age: 1,
@@ -87,11 +99,13 @@ it('returns missing-field payload variants for nested object', () => {
     {
       name: 'danar',
       age: 33,
+      monster: INVALID_VALUE_FOR_COMPLEX,
     },
     {
       name: 'danar',
       age: 33,
       monster: {
+        name: INVALID_VALUE_FOR_PRIMITIVE,
         age: 1,
       },
     },
@@ -100,11 +114,12 @@ it('returns missing-field payload variants for nested object', () => {
       age: 33,
       monster: {
         name: 'charmender',
+        age: INVALID_VALUE_FOR_PRIMITIVE,
       },
     },
   ]
 
-  const result = MissingPayloadBuilder.generateObjectPayload(
+  const result = InvalidPayloadBuilder.generateObjectPayload(
     correctPayload,
     objectSchema
   )
@@ -112,7 +127,7 @@ it('returns missing-field payload variants for nested object', () => {
   expect(result).toEqual(expected)
 })
 
-it('returns missing-field payload variants for object with nested simple array', () => {
+it('returns invalid-type payload variants for object with nested simple array', () => {
   const objectSchema: InputSpec = {
     type: 'object',
     properties: {
@@ -137,27 +152,35 @@ it('returns missing-field payload variants for object with nested simple array',
     tags: ['beginner'],
   }
 
+  const INVALID_VALUE_FOR_PRIMITIVE =
+    InvalidPayloadBuilder.getInvalidValueForPrimitive()
+  const INVALID_VALUE_FOR_COMPLEX =
+    InvalidPayloadBuilder.getInvalidValueForComplex()
+
   const expected: ObjectPayload[] = [
     {
+      name: INVALID_VALUE_FOR_PRIMITIVE,
       age: 33,
       tags: ['beginner'],
     },
     {
       name: 'danar',
+      age: INVALID_VALUE_FOR_PRIMITIVE,
       tags: ['beginner'],
     },
     {
       name: 'danar',
       age: 33,
+      tags: INVALID_VALUE_FOR_COMPLEX,
     },
     {
       name: 'danar',
       age: 33,
-      tags: [],
+      tags: [INVALID_VALUE_FOR_PRIMITIVE],
     },
   ]
 
-  const result = MissingPayloadBuilder.generateObjectPayload(
+  const result = InvalidPayloadBuilder.generateObjectPayload(
     correctPayload,
     objectSchema
   )
@@ -165,7 +188,7 @@ it('returns missing-field payload variants for object with nested simple array',
   expect(result).toEqual(expected)
 })
 
-it('returns missing-field payload variants for object with nested array of object', () => {
+it('returns invalid-type payload variants for object with nested array of object', () => {
   const objectSchema: InputSpec = {
     type: 'object',
     properties: {
@@ -203,8 +226,14 @@ it('returns missing-field payload variants for object with nested array of objec
     ],
   }
 
+  const INVALID_VALUE_FOR_PRIMITIVE =
+    InvalidPayloadBuilder.getInvalidValueForPrimitive()
+  const INVALID_VALUE_FOR_COMPLEX =
+    InvalidPayloadBuilder.getInvalidValueForComplex()
+
   const expected: ObjectPayload[] = [
     {
+      name: INVALID_VALUE_FOR_PRIMITIVE,
       age: 33,
       monsters: [
         {
@@ -215,6 +244,7 @@ it('returns missing-field payload variants for object with nested array of objec
     },
     {
       name: 'danar',
+      age: INVALID_VALUE_FOR_PRIMITIVE,
       monsters: [
         {
           name: 'charmender',
@@ -225,17 +255,19 @@ it('returns missing-field payload variants for object with nested array of objec
     {
       name: 'danar',
       age: 33,
+      monsters: INVALID_VALUE_FOR_COMPLEX,
     },
     {
       name: 'danar',
       age: 33,
-      monsters: [],
+      monsters: [INVALID_VALUE_FOR_COMPLEX],
     },
     {
       name: 'danar',
       age: 33,
       monsters: [
         {
+          name: INVALID_VALUE_FOR_PRIMITIVE,
           age: 1,
         },
       ],
@@ -246,12 +278,13 @@ it('returns missing-field payload variants for object with nested array of objec
       monsters: [
         {
           name: 'charmender',
+          age: INVALID_VALUE_FOR_PRIMITIVE,
         },
       ],
     },
   ]
 
-  const result = MissingPayloadBuilder.generateObjectPayload(
+  const result = InvalidPayloadBuilder.generateObjectPayload(
     correctPayload,
     objectSchema
   )

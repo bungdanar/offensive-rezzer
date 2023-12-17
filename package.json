@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npx ts-node src/index.ts",
     "dev": "node --require ts-node/register --inspect-brk src/index.ts",
-    "test": "jest --no-cache"
+    "test": "jest --no-cache --verbose"
   },
   "keywords": [],
   "author": "Danar Gumilang Putera",
