@@ -26,9 +26,7 @@ export class MissingPayloadBuilder {
   ): ObjectPayload[] => {
     const payloads: ObjectPayload[] = []
 
-    const copy = structuredClone(correctPayload)
-    delete copy[prop]
-    payloads.push(copy)
+    payloads.push(this.generateObjectPayloadWithoutProp(prop, correctPayload))
 
     const nestedCopy = structuredClone(correctPayload[prop])
     const nestedPayloadVariants = this.generateObjectPayload(nestedCopy, spec)
@@ -39,6 +37,45 @@ export class MissingPayloadBuilder {
       const freshCopy = structuredClone(correctPayload)
       freshCopy[prop] = np
       payloads.push(freshCopy)
+    }
+
+    return payloads
+  }
+
+  public static generateArrayPayload = (
+    prop: string,
+    spec: InputSpec,
+    correctPayload: ObjectPayload
+  ): ObjectPayload[] => {
+    const payloads: ObjectPayload[] = []
+
+    const items = spec['items']
+    if (items) {
+      switch (items['type']) {
+        case SchemaDataTypes.STRING:
+        case SchemaDataTypes.NUMBER:
+        case SchemaDataTypes.INTEGER:
+        case SchemaDataTypes.BOOLEAN:
+        case SchemaDataTypes.ARRAY: {
+          payloads.push(
+            this.generateObjectPayloadWithoutProp(prop, correctPayload)
+          )
+
+          const copy = structuredClone(correctPayload)
+          copy[prop] = []
+          payloads.push(copy)
+
+          break
+        }
+
+        case SchemaDataTypes.OBJECT: {
+          payloads.push(...this.generateObjectPayload(correctPayload, items))
+          break
+        }
+
+        default:
+          break
+      }
     }
 
     return payloads
@@ -72,9 +109,16 @@ export class MissingPayloadBuilder {
           continue
         }
 
-        // if ((propSpec as InputSpec)['type'] === SchemaDataTypes.ARRAY) {
-        //   continue
-        // }
+        if ((propSpec as InputSpec)['type'] === SchemaDataTypes.ARRAY) {
+          totalPayloads.push(
+            ...this.generateArrayPayload(
+              prop,
+              propSpec as InputSpec,
+              correctPayload
+            )
+          )
+          continue
+        }
       }
     }
 
