@@ -1,20 +1,9 @@
 import OpenApiParser from '@readme/openapi-parser'
 import { HttpMethods } from './enums/http-methods'
 import { MethodDetailsHelper } from './utils/check-method-details'
-import {
-  CorrectPayloadBuilder,
-  MissingPayloadBuilder,
-} from './utils/payload-builder'
-
-type AllPayloads = {
-  // Paths
-  [key: string]: {
-    // Methods
-    [key: string]: {
-      [key: string]: any
-    }[]
-  }
-}
+import { CorrectPayloadBuilder } from './utils/correct-payload-builder'
+import { AllPayloads } from './types/common'
+import { MissingPayloadBuilder } from './utils/missing-payload-builder'
 
 const app = async () => {
   try {
