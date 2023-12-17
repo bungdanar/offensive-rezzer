@@ -1,7 +1,7 @@
 import { InputSpec, ObjectPayload } from '../../types/common'
 import { MissingPayloadBuilder } from '../missing-payload-builder'
 
-it('returns expected payload variants for simple object', () => {
+it('returns missing-field payload variants for simple object', () => {
   const objectSchema: InputSpec = {
     type: 'object',
     properties: {
@@ -36,7 +36,7 @@ it('returns expected payload variants for simple object', () => {
   expect(result).toEqual(expected)
 })
 
-it('returns expected payload variants for nested object', () => {
+it('returns missing-field payload variants for nested object', () => {
   const objectSchema: InputSpec = {
     type: 'object',
     properties: {
@@ -112,7 +112,7 @@ it('returns expected payload variants for nested object', () => {
   expect(result).toEqual(expected)
 })
 
-it('returns expected payload variants for object with nested simple array', () => {
+it('returns missing-field payload variants for object with nested simple array', () => {
   const objectSchema: InputSpec = {
     type: 'object',
     properties: {
@@ -165,7 +165,7 @@ it('returns expected payload variants for object with nested simple array', () =
   expect(result).toEqual(expected)
 })
 
-it('returns expected payload variants for object with nested array of object', () => {
+it('returns missing-field payload variants for object with nested array of object', () => {
   const objectSchema: InputSpec = {
     type: 'object',
     properties: {
