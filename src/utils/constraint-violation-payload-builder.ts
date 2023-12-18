@@ -58,6 +58,53 @@ export class ConstraintViolationPayloadBuilder {
     return payloads
   }
 
+  public static generateArrayPayload = (
+    prop: string,
+    spec: InputSpec,
+    correctPayload: ObjectPayload
+  ): ObjectPayload[] => {
+    const payloads: ObjectPayload[] = []
+
+    const items = spec['items']
+    if (items) {
+      switch (items['type']) {
+        case SchemaDataTypes.STRING: {
+          const variants = this.generateStringPayloads(items)
+          for (let i = 0; i < variants.length; i++) {
+            const v = variants[i]
+
+            const copy = structuredClone(correctPayload)
+            copy[prop] = [v]
+
+            payloads.push(copy)
+          }
+
+          break
+        }
+
+        case SchemaDataTypes.NUMBER:
+        case SchemaDataTypes.INTEGER: {
+          const variants = this.generateNumberPayloads(items)
+          for (let i = 0; i < variants.length; i++) {
+            const v = variants[i]
+
+            const copy = structuredClone(correctPayload)
+            copy[prop] = [v]
+
+            payloads.push(copy)
+          }
+
+          break
+        }
+
+        default:
+          break
+      }
+    }
+
+    return payloads
+  }
+
   public static generateObjectPayload = (
     correctPayload: ObjectPayload,
     payloadSpec: InputSpec
@@ -105,6 +152,18 @@ export class ConstraintViolationPayloadBuilder {
                 correctPayload
               )
             )
+            break
+          }
+
+          case SchemaDataTypes.ARRAY: {
+            totalPayloads.push(
+              ...this.generateArrayPayload(
+                prop,
+                propSpec as InputSpec,
+                correctPayload
+              )
+            )
+
             break
           }
 
