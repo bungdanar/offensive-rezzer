@@ -93,7 +93,7 @@ it('returns constraint-violation payload variants for nested object', () => {
           },
           age: {
             type: 'integer',
-            minimum: 1,
+            minimum: 0,
             maximum: 10,
           },
         },
@@ -289,7 +289,7 @@ it('returns constraint-violation payload variants for object with nested simple 
         type: 'array',
         items: {
           type: 'integer',
-          minimum: 1,
+          minimum: 0,
           maximum: 99,
         },
       },
@@ -450,7 +450,7 @@ it('returns constraint-violation payload variants for object with nested array o
             },
             age: {
               type: 'integer',
-              minimum: 1,
+              minimum: 0,
               maximum: 10,
             },
           },

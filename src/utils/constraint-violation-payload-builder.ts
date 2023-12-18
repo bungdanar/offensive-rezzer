@@ -12,11 +12,14 @@ export class ConstraintViolationPayloadBuilder {
   private static generateStringPayloads = (spec: InputSpec): string[] => {
     const payloads = ['', 'f'.repeat(this.STR_MAX_LENGTH)]
 
-    if (spec[StringRange.MIN_LENGTH] && spec[StringRange.MIN_LENGTH] - 1 > 0) {
+    if (
+      spec[StringRange.MIN_LENGTH] !== undefined &&
+      spec[StringRange.MIN_LENGTH] - 1 > 0
+    ) {
       payloads.push('f'.repeat(spec[StringRange.MIN_LENGTH] - 1))
     }
 
-    if (spec[StringRange.MAX_LENGTH]) {
+    if (spec[StringRange.MAX_LENGTH] !== undefined) {
       payloads.push('f'.repeat(spec[StringRange.MAX_LENGTH] + 100))
     }
 
@@ -26,11 +29,11 @@ export class ConstraintViolationPayloadBuilder {
   private static generateNumberPayloads = (spec: InputSpec): number[] => {
     const payloads = [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]
 
-    if (spec[NumberRange.MINIMUM]) {
+    if (spec[NumberRange.MINIMUM] !== undefined) {
       payloads.push(spec[NumberRange.MINIMUM] - this.NUMBER_ADJUSTMENT)
     }
 
-    if (spec[NumberRange.MAXIMUM]) {
+    if (spec[NumberRange.MAXIMUM] !== undefined) {
       payloads.push(spec[NumberRange.MAXIMUM] + this.NUMBER_ADJUSTMENT)
     }
 
@@ -66,7 +69,7 @@ export class ConstraintViolationPayloadBuilder {
     const payloads: ObjectPayload[] = []
 
     const nestedCopy = structuredClone(correctPayload[prop])
-    if (nestedCopy[0]) {
+    if (nestedCopy[0] !== undefined) {
       const nestedObjVariants = this.generateObjectPayload(
         nestedCopy[0],
         objSpec
@@ -92,7 +95,7 @@ export class ConstraintViolationPayloadBuilder {
     const payloads: ObjectPayload[] = []
 
     const items = spec['items']
-    if (items) {
+    if (items !== undefined) {
       switch (items['type']) {
         case SchemaDataTypes.STRING: {
           const variants = this.generateStringPayloads(items)
@@ -150,7 +153,7 @@ export class ConstraintViolationPayloadBuilder {
     const totalPayloads: ObjectPayload[] = []
 
     const properties = payloadSpec['properties']
-    if (properties) {
+    if (properties !== undefined) {
       for (const [prop, propSpec] of Object.entries(properties)) {
         switch ((propSpec as InputSpec)['type']) {
           case SchemaDataTypes.STRING: {

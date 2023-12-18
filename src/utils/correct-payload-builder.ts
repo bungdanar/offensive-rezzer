@@ -13,15 +13,15 @@ export class CorrectPayloadBuilder {
   private static generateStringPayload = (spec: InputSpec): string => {
     let payload = 'fuzz'
 
-    if (spec[StringRange.MIN_LENGTH]) {
+    if (spec[StringRange.MIN_LENGTH] !== undefined) {
       payload = 'f'.repeat(spec[StringRange.MIN_LENGTH])
     }
 
-    if (spec['pattern']) {
+    if (spec['pattern'] !== undefined) {
       payload = new RandExp(new RegExp(spec['pattern'])).gen()
     }
 
-    if (spec['format']) {
+    if (spec['format'] !== undefined) {
       if (spec['format'] === StringFormats.DATE) {
         payload = moment().format('YYYY-MM-DD')
       }
@@ -37,7 +37,7 @@ export class CorrectPayloadBuilder {
   private static generateNumberPayload = (spec: InputSpec): number => {
     let payload = 4
 
-    if (spec[NumberRange.MINIMUM]) {
+    if (spec[NumberRange.MINIMUM] !== undefined) {
       payload = spec[NumberRange.MINIMUM]
     }
 
@@ -47,7 +47,7 @@ export class CorrectPayloadBuilder {
   private static generateIntegerPayload = (spec: InputSpec): number => {
     let payload = 4
 
-    if (spec[NumberRange.MINIMUM]) {
+    if (spec[NumberRange.MINIMUM] !== undefined) {
       payload = spec[NumberRange.MINIMUM]
     }
 
@@ -63,7 +63,7 @@ export class CorrectPayloadBuilder {
     const payload: Array<any> = []
 
     const items = spec['items']
-    if (items) {
+    if (items !== undefined) {
       switch (items['type']) {
         case SchemaDataTypes.STRING: {
           payload.push(this.generateStringPayload(items))
@@ -107,7 +107,7 @@ export class CorrectPayloadBuilder {
     const payload: ObjectPayload = {}
 
     const properties = spec['properties']
-    if (properties) {
+    if (properties !== undefined) {
       for (const [prop, propSpec] of Object.entries(properties)) {
         switch ((propSpec as InputSpec)['type']) {
           case SchemaDataTypes.STRING: {

@@ -54,7 +54,7 @@ export class InvalidPayloadBuilder {
     payloads.push(copy, copy2)
 
     const nestedCopy = structuredClone(correctPayload[prop])
-    if (nestedCopy[0]) {
+    if (nestedCopy[0] !== undefined) {
       const nestedObjVariants = this.generateObjectPayload(
         nestedCopy[0],
         objSpec
@@ -80,7 +80,7 @@ export class InvalidPayloadBuilder {
     const payloads: ObjectPayload[] = []
 
     const items = spec['items']
-    if (items) {
+    if (items !== undefined) {
       switch (items['type']) {
         case SchemaDataTypes.STRING:
         case SchemaDataTypes.NUMBER:
@@ -135,7 +135,7 @@ export class InvalidPayloadBuilder {
     const totalPayloads: ObjectPayload[] = []
 
     const properties = payloadSpec['properties']
-    if (properties) {
+    if (properties !== undefined) {
       for (const [prop, propSpec] of Object.entries(properties)) {
         switch ((propSpec as InputSpec)['type']) {
           case SchemaDataTypes.STRING:
