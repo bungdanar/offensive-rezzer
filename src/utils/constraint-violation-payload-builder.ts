@@ -58,6 +58,32 @@ export class ConstraintViolationPayloadBuilder {
     return payloads
   }
 
+  private static generateArrayOfObjectPayloadVariants = (
+    prop: string,
+    objSpec: InputSpec,
+    correctPayload: ObjectPayload
+  ): ObjectPayload[] => {
+    const payloads: ObjectPayload[] = []
+
+    const nestedCopy = structuredClone(correctPayload[prop])
+    if (nestedCopy[0]) {
+      const nestedObjVariants = this.generateObjectPayload(
+        nestedCopy[0],
+        objSpec
+      )
+
+      for (let i = 0; i < nestedObjVariants.length; i++) {
+        const nObj = nestedObjVariants[i]
+
+        const freshCopy = structuredClone(correctPayload)
+        freshCopy[prop] = [nObj]
+        payloads.push(freshCopy)
+      }
+    }
+
+    return payloads
+  }
+
   public static generateArrayPayload = (
     prop: string,
     spec: InputSpec,
@@ -93,6 +119,18 @@ export class ConstraintViolationPayloadBuilder {
 
             payloads.push(copy)
           }
+
+          break
+        }
+
+        case SchemaDataTypes.OBJECT: {
+          payloads.push(
+            ...this.generateArrayOfObjectPayloadVariants(
+              prop,
+              items,
+              correctPayload
+            )
+          )
 
           break
         }
