@@ -1,5 +1,9 @@
-import { NumberRange, StringRange } from '../enums/openapi-data-types'
-import { InputSpec } from '../types/common'
+import {
+  NumberRange,
+  SchemaDataTypes,
+  StringRange,
+} from '../enums/openapi-data-types'
+import { InputSpec, ObjectPayload } from '../types/common'
 
 export class ConstraintViolationPayloadBuilder {
   private static readonly STR_MAX_LENGTH = 65535
@@ -31,5 +35,85 @@ export class ConstraintViolationPayloadBuilder {
     }
 
     return payloads
+  }
+
+  private static generateObjectPayloadVariants = (
+    prop: string,
+    spec: InputSpec,
+    correctPayload: ObjectPayload
+  ): ObjectPayload[] => {
+    const payloads: ObjectPayload[] = []
+
+    const nestedCopy = structuredClone(correctPayload[prop])
+    const nestedPayloadVariants = this.generateObjectPayload(nestedCopy, spec)
+
+    for (let i = 0; i < nestedPayloadVariants.length; i++) {
+      const np = nestedPayloadVariants[i]
+
+      const freshCopy = structuredClone(correctPayload)
+      freshCopy[prop] = np
+      payloads.push(freshCopy)
+    }
+
+    return payloads
+  }
+
+  public static generateObjectPayload = (
+    correctPayload: ObjectPayload,
+    payloadSpec: InputSpec
+  ): ObjectPayload[] => {
+    const totalPayloads: ObjectPayload[] = []
+
+    const properties = payloadSpec['properties']
+    if (properties) {
+      for (const [prop, propSpec] of Object.entries(properties)) {
+        switch ((propSpec as InputSpec)['type']) {
+          case SchemaDataTypes.STRING: {
+            const variants = this.generateStringPayloads(propSpec as InputSpec)
+            for (let i = 0; i < variants.length; i++) {
+              const v = variants[i]
+
+              const copy = structuredClone(correctPayload)
+              copy[prop] = v
+
+              totalPayloads.push(copy)
+            }
+
+            break
+          }
+
+          case SchemaDataTypes.NUMBER:
+          case SchemaDataTypes.INTEGER: {
+            const variants = this.generateNumberPayloads(propSpec as InputSpec)
+            for (let i = 0; i < variants.length; i++) {
+              const v = variants[i]
+
+              const copy = structuredClone(correctPayload)
+              copy[prop] = v
+
+              totalPayloads.push(copy)
+            }
+
+            break
+          }
+
+          case SchemaDataTypes.OBJECT: {
+            totalPayloads.push(
+              ...this.generateObjectPayloadVariants(
+                prop,
+                propSpec as InputSpec,
+                correctPayload
+              )
+            )
+            break
+          }
+
+          default:
+            break
+        }
+      }
+    }
+
+    return totalPayloads
   }
 }
