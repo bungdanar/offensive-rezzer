@@ -5,6 +5,7 @@ import { CorrectPayloadBuilder } from './utils/correct-payload-builder'
 import { AllPayloads } from './types/common'
 import { MissingPayloadBuilder } from './utils/missing-payload-builder'
 import { InvalidPayloadBuilder } from './utils/invalid-payload-builder'
+import { ConstraintViolationPayloadBuilder } from './utils/constraint-violation-payload-builder'
 
 const app = async () => {
   try {
@@ -38,12 +39,19 @@ const app = async () => {
           const invalidTypePayloads =
             InvalidPayloadBuilder.generateObjectPayload(correctPayload, schema)
 
+          const constraintViolationPayloads =
+            ConstraintViolationPayloadBuilder.generateObjectPayload(
+              correctPayload,
+              schema
+            )
+
           if (allPayloads[path] === undefined) {
             allPayloads[path] = {
               [method]: [
                 correctPayload,
                 ...missingPayloads,
                 ...invalidTypePayloads,
+                ...constraintViolationPayloads,
               ],
             }
           } else {
@@ -53,6 +61,7 @@ const app = async () => {
                   correctPayload,
                   ...missingPayloads,
                   ...invalidTypePayloads,
+                  ...constraintViolationPayloads,
                 ],
               }
             } else {
@@ -61,6 +70,7 @@ const app = async () => {
                 correctPayload,
                 ...missingPayloads,
                 ...invalidTypePayloads,
+                ...constraintViolationPayloads,
               ]
             }
           }

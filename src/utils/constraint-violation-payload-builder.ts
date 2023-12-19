@@ -1,14 +1,44 @@
-import { SchemaDataTypes } from '../enums/openapi-data-types'
+import {
+  NumberRange,
+  SchemaDataTypes,
+  StringRange,
+} from '../enums/openapi-data-types'
 import { InputSpec, ObjectPayload } from '../types/common'
 
-export class InvalidPayloadBuilder {
-  public static getInvalidValueForPrimitive = () => {
-    return {
-      fuzz: 'fuzz',
+export class ConstraintViolationPayloadBuilder {
+  private static readonly STR_MAX_LENGTH = 65535
+  private static readonly NUMBER_ADJUSTMENT = 1000000
+
+  private static generateStringPayloads = (spec: InputSpec): string[] => {
+    const payloads = ['', 'f'.repeat(this.STR_MAX_LENGTH)]
+
+    if (
+      spec[StringRange.MIN_LENGTH] !== undefined &&
+      spec[StringRange.MIN_LENGTH] - 1 > 0
+    ) {
+      payloads.push('f'.repeat(spec[StringRange.MIN_LENGTH] - 1))
     }
+
+    if (spec[StringRange.MAX_LENGTH] !== undefined) {
+      payloads.push('f'.repeat(spec[StringRange.MAX_LENGTH] + 100))
+    }
+
+    return payloads
   }
 
-  public static getInvalidValueForComplex = () => 'fuzz'
+  private static generateNumberPayloads = (spec: InputSpec): number[] => {
+    const payloads = [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]
+
+    if (spec[NumberRange.MINIMUM] !== undefined) {
+      payloads.push(spec[NumberRange.MINIMUM] - this.NUMBER_ADJUSTMENT)
+    }
+
+    if (spec[NumberRange.MAXIMUM] !== undefined) {
+      payloads.push(spec[NumberRange.MAXIMUM] + this.NUMBER_ADJUSTMENT)
+    }
+
+    return payloads
+  }
 
   private static generateObjectPayloadVariants = (
     prop: string,
@@ -16,11 +46,6 @@ export class InvalidPayloadBuilder {
     correctPayload: ObjectPayload
   ): ObjectPayload[] => {
     const payloads: ObjectPayload[] = []
-
-    // Assign primitive value
-    const copyWithPrimitive = structuredClone(correctPayload)
-    copyWithPrimitive[prop] = this.getInvalidValueForComplex()
-    payloads.push(copyWithPrimitive)
 
     const nestedCopy = structuredClone(correctPayload[prop])
     const nestedPayloadVariants = this.generateObjectPayload(nestedCopy, spec)
@@ -42,16 +67,6 @@ export class InvalidPayloadBuilder {
     correctPayload: ObjectPayload
   ): ObjectPayload[] => {
     const payloads: ObjectPayload[] = []
-
-    // Assign primitive value
-    const copy = structuredClone(correctPayload)
-    copy[prop] = this.getInvalidValueForComplex()
-
-    // Assign array of primitive value
-    const copy2 = structuredClone(correctPayload)
-    copy2[prop] = [this.getInvalidValueForComplex()]
-
-    payloads.push(copy, copy2)
 
     const nestedCopy = structuredClone(correctPayload[prop])
     if (nestedCopy[0] !== undefined) {
@@ -82,19 +97,31 @@ export class InvalidPayloadBuilder {
     const items = spec['items']
     if (items !== undefined) {
       switch (items['type']) {
-        case SchemaDataTypes.STRING:
+        case SchemaDataTypes.STRING: {
+          const variants = this.generateStringPayloads(items)
+          for (let i = 0; i < variants.length; i++) {
+            const v = variants[i]
+
+            const copy = structuredClone(correctPayload)
+            copy[prop] = [v]
+
+            payloads.push(copy)
+          }
+
+          break
+        }
+
         case SchemaDataTypes.NUMBER:
-        case SchemaDataTypes.INTEGER:
-        case SchemaDataTypes.BOOLEAN: {
-          // Assign primitive value
-          const copy = structuredClone(correctPayload)
-          copy[prop] = this.getInvalidValueForComplex()
+        case SchemaDataTypes.INTEGER: {
+          const variants = this.generateNumberPayloads(items)
+          for (let i = 0; i < variants.length; i++) {
+            const v = variants[i]
 
-          // Assign complex value to array element
-          const copy2 = structuredClone(correctPayload)
-          copy2[prop] = [this.getInvalidValueForPrimitive()]
+            const copy = structuredClone(correctPayload)
+            copy[prop] = [v]
 
-          payloads.push(copy, copy2)
+            payloads.push(copy)
+          }
 
           break
         }
@@ -107,15 +134,6 @@ export class InvalidPayloadBuilder {
               correctPayload
             )
           )
-          break
-        }
-
-        case SchemaDataTypes.ARRAY: {
-          // Assign primitive value
-          const copy = structuredClone(correctPayload)
-          copy[prop] = this.getInvalidValueForComplex()
-
-          payloads.push(copy)
 
           break
         }
@@ -138,15 +156,31 @@ export class InvalidPayloadBuilder {
     if (properties !== undefined) {
       for (const [prop, propSpec] of Object.entries(properties)) {
         switch ((propSpec as InputSpec)['type']) {
-          case SchemaDataTypes.STRING:
-          case SchemaDataTypes.NUMBER:
-          case SchemaDataTypes.INTEGER:
-          case SchemaDataTypes.BOOLEAN: {
-            // Assign complex value
-            const copy = structuredClone(correctPayload)
-            copy[prop] = this.getInvalidValueForPrimitive()
+          case SchemaDataTypes.STRING: {
+            const variants = this.generateStringPayloads(propSpec as InputSpec)
+            for (let i = 0; i < variants.length; i++) {
+              const v = variants[i]
 
-            totalPayloads.push(copy)
+              const copy = structuredClone(correctPayload)
+              copy[prop] = v
+
+              totalPayloads.push(copy)
+            }
+
+            break
+          }
+
+          case SchemaDataTypes.NUMBER:
+          case SchemaDataTypes.INTEGER: {
+            const variants = this.generateNumberPayloads(propSpec as InputSpec)
+            for (let i = 0; i < variants.length; i++) {
+              const v = variants[i]
+
+              const copy = structuredClone(correctPayload)
+              copy[prop] = v
+
+              totalPayloads.push(copy)
+            }
 
             break
           }
@@ -170,6 +204,7 @@ export class InvalidPayloadBuilder {
                 correctPayload
               )
             )
+
             break
           }
 

@@ -56,7 +56,7 @@ export class MissingPayloadBuilder {
     payloads.push(copy)
 
     const nestedCopy = structuredClone(correctPayload[prop])
-    if (nestedCopy[0]) {
+    if (nestedCopy[0] !== undefined) {
       const nestedObjVariants = this.generateObjectPayload(
         nestedCopy[0],
         objSpec
@@ -82,7 +82,7 @@ export class MissingPayloadBuilder {
     const payloads: ObjectPayload[] = []
 
     const items = spec['items']
-    if (items) {
+    if (items !== undefined) {
       switch (items['type']) {
         case SchemaDataTypes.STRING:
         case SchemaDataTypes.NUMBER:
@@ -126,7 +126,7 @@ export class MissingPayloadBuilder {
     const totalPayloads: ObjectPayload[] = []
 
     const properties = payloadSpec['properties']
-    if (properties) {
+    if (properties !== undefined) {
       for (const [prop, propSpec] of Object.entries(properties)) {
         if (this.PRIMITIVE_TYPES.includes((propSpec as InputSpec)['type'])) {
           totalPayloads.push(
