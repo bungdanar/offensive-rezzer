@@ -3,10 +3,12 @@ export class MethodDetailsHelper {
     [key: string]: any
   }): boolean => {
     return (
-      methodDetails['requestBody'] &&
-      methodDetails['requestBody']['content'] &&
-      methodDetails['requestBody']['content']['application/json'] &&
-      methodDetails['requestBody']['content']['application/json']['schema']
+      methodDetails['requestBody'] !== undefined &&
+      methodDetails['requestBody']['content'] !== undefined &&
+      methodDetails['requestBody']['content']['application/json'] !==
+        undefined &&
+      methodDetails['requestBody']['content']['application/json']['schema'] !==
+        undefined
     )
   }
 
