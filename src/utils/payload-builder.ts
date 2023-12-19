@@ -29,7 +29,7 @@ export class PayloadBuilder {
           }
 
           console.log(
-            `Building fuzzing payloads for endpoint ${path} [${method}]`
+            `Building fuzzing payloads for endpoint [${method}] ${path}`
           )
 
           const schema = MethodDetailsHelper.getSchema(methodDetails as any)
@@ -50,32 +50,26 @@ export class PayloadBuilder {
               schema
             )
 
+          const totalGeneratedPayloads = [
+            correctPayload,
+            ...missingPayloads,
+            ...invalidTypePayloads,
+            ...constraintViolationPayloads,
+          ]
+
           if (allPayloads[path] === undefined) {
             allPayloads[path] = {
-              [method]: [
-                correctPayload,
-                ...missingPayloads,
-                ...invalidTypePayloads,
-                ...constraintViolationPayloads,
-              ],
+              [method]: totalGeneratedPayloads,
             }
           } else {
             if (allPayloads[path][method] === undefined) {
               allPayloads[path] = {
-                [method]: [
-                  correctPayload,
-                  ...missingPayloads,
-                  ...invalidTypePayloads,
-                  ...constraintViolationPayloads,
-                ],
+                [method]: totalGeneratedPayloads,
               }
             } else {
               allPayloads[path][method] = [
                 ...allPayloads[path][method],
-                correctPayload,
-                ...missingPayloads,
-                ...invalidTypePayloads,
-                ...constraintViolationPayloads,
+                ...totalGeneratedPayloads,
               ]
             }
           }

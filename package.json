@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@readme/openapi-parser": "^2.5.0",
+    "axios": "^1.6.2",
     "moment": "^2.29.4",
     "randexp": "^0.5.3"
   }
