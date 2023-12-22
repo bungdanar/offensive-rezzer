@@ -37,14 +37,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ProductCreatePayload"
-              },
-              "examples": {
-                "CorrectProductCreatePayload": {
-                  "$ref": "#/components/examples/CorrectProductCreatePayload"
-                },
-                "IncorrectProductCreatePayload": {
-                  "$ref": "#/components/examples/IncorrectProductCreatePayload"
-                }
               }
             }
           }
@@ -95,14 +87,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ProductTagCategoryCreatePayload"
-              },
-              "examples": {
-                "CorrectProductTagCategoryCreatePayload": {
-                  "$ref": "#/components/examples/CorrectProductTagCategoryCreatePayload"
-                },
-                "IncorrectProductTagCategoryCreatePayload": {
-                  "$ref": "#/components/examples/IncorrectProductTagCategoryCreatePayload"
-                }
               }
             }
           }
@@ -153,14 +137,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ProductTagCategoryCouponCreatePayload"
-              },
-              "examples": {
-                "CorrectProductTagCategoryCouponCreatePayload": {
-                  "$ref": "#/components/examples/CorrectProductTagCategoryCouponCreatePayload"
-                },
-                "IncorrectProductTagCategoryCouponCreatePayload": {
-                  "$ref": "#/components/examples/IncorrectProductTagCategoryCouponCreatePayload"
-                }
               }
             }
           }
@@ -211,14 +187,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/UserCreatePayload"
-              },
-              "examples": {
-                "CorrectUserCreatePayload": {
-                  "$ref": "#/components/examples/CorrectUserCreatePayload"
-                },
-                "IncorrectUserCreatePayload": {
-                  "$ref": "#/components/examples/IncorrectUserCreatePayload"
-                }
               }
             }
           }
@@ -269,14 +237,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/UserAddressCreatePayload"
-              },
-              "examples": {
-                "CorrectUserAddressCreatePayload": {
-                  "$ref": "#/components/examples/CorrectUserAddressCreatePayload"
-                },
-                "IncorrectUserAddressCreatePayload": {
-                  "$ref": "#/components/examples/IncorrectUserAddressCreatePayload"
-                }
               }
             }
           }
@@ -327,14 +287,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/UserAddressProductCreatePayload"
-              },
-              "examples": {
-                "CorrectUserAddressProductCreatePayload": {
-                  "$ref": "#/components/examples/CorrectUserAddressProductCreatePayload"
-                },
-                "IncorrectUserAddressProductCreatePayload": {
-                  "$ref": "#/components/examples/IncorrectUserAddressProductCreatePayload"
-                }
               }
             }
           }
@@ -385,14 +337,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/UserAddressProductShippingCreatePayload"
-              },
-              "examples": {
-                "CorrectUserAddressProductShippingCreatePayload": {
-                  "$ref": "#/components/examples/CorrectUserAddressProductShippingCreatePayload"
-                },
-                "IncorrectUserAddressProductShippingCreatePayload": {
-                  "$ref": "#/components/examples/IncorrectUserAddressProductShippingCreatePayload"
-                }
               }
             }
           }
@@ -601,7 +545,7 @@
           },
           "email": {
             "type": "string",
-            "pattern": "^[A-Z0-9._%-]+@[A-Z0-9.-]+.[A-Z]{2,4}$",
+            "pattern": "^[a-z0-9._+-]{1,20}@[a-z0-9]{3,15}([.][a-z]{2,4}){1,3}$",
             "maxLength": 255
           },
           "phone_code": {
@@ -853,7 +797,7 @@
           },
           "email": {
             "type": "string",
-            "pattern": "^[A-Z0-9._%-]+@[A-Z0-9.-]+.[A-Z]{2,4}$",
+            "pattern": "^[a-z0-9._+-]{1,20}@[a-z0-9]{3,15}([.][a-z]{2,4}){1,3}$",
             "maxLength": 255
           },
           "phone_code": {
@@ -897,7 +841,7 @@
           },
           "email": {
             "type": "string",
-            "pattern": "^[A-Z0-9._%-]+@[A-Z0-9.-]+.[A-Z]{2,4}$",
+            "pattern": "^[a-z0-9._+-]{1,20}@[a-z0-9]{3,15}([.][a-z]{2,4}){1,3}$",
             "maxLength": 255
           },
           "phone_code": {
@@ -948,7 +892,7 @@
           },
           "email": {
             "type": "string",
-            "pattern": "^[A-Z0-9._%-]+@[A-Z0-9.-]+.[A-Z]{2,4}$",
+            "pattern": "^[a-z0-9._+-]{1,20}@[a-z0-9]{3,15}([.][a-z]{2,4}){1,3}$",
             "maxLength": 255
           },
           "phone_code": {
@@ -1136,7 +1080,7 @@
           },
           "email": {
             "type": "string",
-            "pattern": "^[A-Z0-9._%-]+@[A-Z0-9.-]+.[A-Z]{2,4}$"
+            "pattern": "^[a-z0-9._+-]{1,20}@[a-z0-9]{3,15}([.][a-z]{2,4}){1,3}$"
           },
           "phone_code": {
             "type": "string",
@@ -1432,7 +1376,7 @@
           },
           "email": {
             "type": "string",
-            "pattern": "^[A-Z0-9._%-]+@[A-Z0-9.-]+.[A-Z]{2,4}$"
+            "pattern": "^[a-z0-9._+-]{1,20}@[a-z0-9]{3,15}([.][a-z]{2,4}){1,3}$"
           },
           "phone_code": {
             "type": "string",
@@ -1473,7 +1417,7 @@
           },
           "email": {
             "type": "string",
-            "pattern": "^[A-Z0-9._%-]+@[A-Z0-9.-]+.[A-Z]{2,4}$"
+            "pattern": "^[a-z0-9._+-]{1,20}@[a-z0-9]{3,15}([.][a-z]{2,4}){1,3}$"
           },
           "phone_code": {
             "type": "string",
@@ -1520,7 +1464,7 @@
           },
           "email": {
             "type": "string",
-            "pattern": "^[A-Z0-9._%-]+@[A-Z0-9.-]+.[A-Z]{2,4}$"
+            "pattern": "^[a-z0-9._+-]{1,20}@[a-z0-9]{3,15}([.][a-z]{2,4}){1,3}$"
           },
           "phone_code": {
             "type": "string",
@@ -1560,364 +1504,6 @@
           },
           "message": {
             "type": "string"
-          }
-        }
-      }
-    },
-    "examples": {
-      "CorrectProductCreatePayload": {
-        "description": "Create a new product with correct input data",
-        "value": {
-          "name": "Sepatu Sketcher Hiking",
-          "sku": "xxx333yyy",
-          "regular_price": 80000,
-          "discount_price": 80000,
-          "quantity": 1000,
-          "description": "Sepatu Outdoor",
-          "weight": 1000,
-          "note": "Hiking",
-          "published": true
-        }
-      },
-      "IncorrectProductCreatePayload": {
-        "description": "Create a new product with incorrect input data",
-        "value": {
-          "name": "Se",
-          "sku": "xx",
-          "regular_price": -80000,
-          "discount_price": -80000,
-          "quantity": -1000,
-          "description": "Se",
-          "weight": -1000,
-          "note": "Hi",
-          "published": false
-        }
-      },
-      "CorrectProductTagCategoryCreatePayload": {
-        "description": "Create a new product with its tags and category with correct input data",
-        "value": {
-          "name": "Sepatu Sketcher Hiking",
-          "sku": "xxx333yyy",
-          "regular_price": 80000,
-          "discount_price": 80000,
-          "quantity": 1000,
-          "description": "Sepatu Outdoor",
-          "weight": 1000,
-          "note": "Hiking",
-          "published": true,
-          "tags": [
-            "tag1",
-            "tag2"
-          ],
-          "category": {
-            "name": "Sepatu",
-            "description": "Deskripsi sepatu"
-          }
-        }
-      },
-      "IncorrectProductTagCategoryCreatePayload": {
-        "description": "Create a new product with its tags and category with incorrect input data",
-        "value": {
-          "name": "Se",
-          "sku": "xx",
-          "regular_price": -80000,
-          "discount_price": -80000,
-          "quantity": -1000,
-          "description": "Se",
-          "weight": -1000,
-          "note": "Hi",
-          "published": false,
-          "tags": [
-            "ta",
-            "ta"
-          ],
-          "category": {
-            "name": "Se",
-            "description": "De"
-          }
-        }
-      },
-      "CorrectProductTagCategoryCouponCreatePayload": {
-        "description": "Create a new product with its tags, categories, and coupons with correct input data",
-        "value": {
-          "name": "Sepatu Sketcher Hiking",
-          "sku": "xxx333yyy",
-          "regular_price": 80000,
-          "discount_price": 80000,
-          "quantity": 1000,
-          "description": "Sepatu Outdoor",
-          "weight": 1000,
-          "note": "Hiking",
-          "published": true,
-          "tags": [
-            "tag1",
-            "tag2"
-          ],
-          "categories": [
-            {
-              "name": "Sepatu 1",
-              "description": "Deskripsi sepatu"
-            },
-            {
-              "name": "Sepatu 2",
-              "description": "Deskripsi sepatu"
-            }
-          ],
-          "coupons": [
-            {
-              "code": "HUT RI",
-              "description": "HUT RI",
-              "discount_value": 25,
-              "discount_type": "Potongan",
-              "times_used": 10,
-              "max_usage": 10,
-              "start_date": "2023-08-17",
-              "end_date": "2023-08-19"
-            }
-          ]
-        }
-      },
-      "IncorrectProductTagCategoryCouponCreatePayload": {
-        "description": "Create a new product with its tags, categories, and coupons with incorrect input data",
-        "value": {
-          "name": "Se",
-          "sku": "xx",
-          "regular_price": -80000,
-          "discount_price": -80000,
-          "quantity": -1000,
-          "description": "Se",
-          "weight": -1000,
-          "note": "Hi",
-          "published": false,
-          "tags": [
-            "ta",
-            "ta"
-          ],
-          "categories": [
-            {
-              "name": "Se",
-              "description": "De"
-            },
-            {
-              "name": "Se",
-              "description": "De"
-            }
-          ],
-          "coupons": [
-            {
-              "code": "HU",
-              "description": "HU",
-              "discount_value": 2500,
-              "discount_type": "Po",
-              "times_used": -10,
-              "max_usage": -10,
-              "start_date": "Tanggal Awal",
-              "end_date": "Tanggal Akhir"
-            }
-          ]
-        }
-      },
-      "CorrectUserCreatePayload": {
-        "description": "Create a new user",
-        "value": {
-          "first_name": "Bung",
-          "last_name": "Danar",
-          "email": "danar@gmail.com",
-          "phone_code": "62",
-          "phone_number": "85279116866"
-        }
-      },
-      "IncorrectUserCreatePayload": {
-        "description": "Create a new user with incorrect input data",
-        "value": {
-          "first_name": "Bu",
-          "last_name": "Da",
-          "email": "danar",
-          "phone_code": "62a",
-          "phone_number": "8527911686677777"
-        }
-      },
-      "CorrectUserAddressCreatePayload": {
-        "description": "Create a new user with its address",
-        "value": {
-          "first_name": "Bung",
-          "last_name": "Danar",
-          "email": "danar@gmail.com",
-          "phone_code": "62",
-          "phone_number": "85279116866",
-          "address": {
-            "street": "Kapuk",
-            "city": "Jakarta",
-            "country": "Indo",
-            "postal_code": "34162"
-          }
-        }
-      },
-      "IncorrectUserAddressCreatePayload": {
-        "description": "Create a new user with its address with incorrect input data",
-        "value": {
-          "first_name": "Bu",
-          "last_name": "Da",
-          "email": "danar",
-          "phone_code": "62a",
-          "phone_number": "8527911686677777",
-          "address": {
-            "street": "Ka",
-            "city": "Ja",
-            "country": "In",
-            "postal_code": "3416200000"
-          }
-        }
-      },
-      "CorrectUserAddressProductCreatePayload": {
-        "description": "Create a new user with its addresses and product",
-        "value": {
-          "first_name": "Bung",
-          "last_name": "Danar",
-          "email": "danar@gmail.com",
-          "phone_code": "62",
-          "phone_number": "85279116866",
-          "addresses": [
-            {
-              "street": "Kapuk",
-              "city": "Jakarta",
-              "country": "Indo",
-              "postal_code": "34162"
-            },
-            {
-              "street": "Harpmul",
-              "city": "Jakarta",
-              "country": "Indo",
-              "postal_code": "34001"
-            }
-          ],
-          "product": {
-            "description": "Sepatu Outdoor",
-            "discount_price": 80000,
-            "name": "Sepatu Sketcher Hiking",
-            "note": "Hiking",
-            "quantity": 1000,
-            "regular_price": 80000,
-            "sku": "xxx333yyy",
-            "weight": 1.25,
-            "published": true
-          }
-        }
-      },
-      "IncorrectUserAddressProductCreatePayload": {
-        "description": "Create a new user with its addresses and product with incorrect input data",
-        "value": {
-          "first_name": "Bu",
-          "last_name": "Da",
-          "email": "danar",
-          "phone_code": "62a",
-          "phone_number": "8527911686677777",
-          "addresses": [
-            {
-              "street": "Ka",
-              "city": "Ja",
-              "country": "In",
-              "postal_code": "3416200000"
-            },
-            {
-              "street": "Ha",
-              "city": "Ja",
-              "country": "In",
-              "postal_code": "abcde"
-            }
-          ],
-          "product": {
-            "description": "Se",
-            "discount_price": -80000,
-            "name": "Se",
-            "note": "Hi",
-            "quantity": 10000,
-            "regular_price": -80000,
-            "sku": "xxx333yyy",
-            "weight": 1.25,
-            "published": true
-          }
-        }
-      },
-      "CorrectUserAddressProductShippingCreatePayload": {
-        "description": "Create a new user with its addresses and product (with its shipping)",
-        "value": {
-          "first_name": "Bung",
-          "last_name": "Danar",
-          "email": "danar@gmail.com",
-          "phone_code": "62",
-          "phone_number": "85279116866",
-          "addresses": [
-            {
-              "street": "Kapuk",
-              "city": "Jakarta",
-              "country": "Indo",
-              "postal_code": "34162"
-            },
-            {
-              "street": "Harpmul",
-              "city": "Jakarta",
-              "country": "Indo",
-              "postal_code": "34001"
-            }
-          ],
-          "product": {
-            "description": "Sepatu Outdoor",
-            "discount_price": 80000,
-            "name": "Sepatu Sketcher Hiking",
-            "note": "Hiking",
-            "quantity": 1000,
-            "regular_price": 80000,
-            "sku": "xxx333yyy",
-            "weight": 1.25,
-            "published": true
-          },
-          "shipping": {
-            "description": "Pengiriman instan",
-            "charge": 50000,
-            "free": false,
-            "estimated_days": 8
-          }
-        }
-      },
-      "IncorrectUserAddressProductShippingCreatePayload": {
-        "description": "Create a new user with its addresses and product (with its shipping) with incorrect input data",
-        "value": {
-          "first_name": "Bu",
-          "last_name": "Da",
-          "email": "danar",
-          "phone_code": "62a",
-          "phone_number": "8527911686677777",
-          "addresses": [
-            {
-              "street": "Ka",
-              "city": "Ja",
-              "country": "In",
-              "postal_code": "3416200000"
-            },
-            {
-              "street": "Ha",
-              "city": "Ja",
-              "country": "In",
-              "postal_code": "abcde"
-            }
-          ],
-          "product": {
-            "description": "Se",
-            "discount_price": -80000,
-            "name": "Se",
-            "note": "Hi",
-            "quantity": 10000,
-            "regular_price": -80000,
-            "sku": "xxx333yyy",
-            "weight": 1.25,
-            "published": true
-          },
-          "shipping": {
-            "description": "Pe",
-            "charge": -50000,
-            "free": true,
-            "estimated_days": 80
           }
         }
       }
