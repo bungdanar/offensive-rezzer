@@ -13,9 +13,8 @@ export class ConstraintViolationPayloadBuilder {
   private static readonly STR_DATETIME_YEAR_ADJUSTMENT = 100
 
   private static generateStringPayloads = (
-    prop: string,
     spec: InputSpec,
-    correctPayload: ObjectPayload
+    correctValue: string
   ): string[] => {
     const payloads = ['', 'f'.repeat(this.STR_MAX_LENGTH)]
 
@@ -32,12 +31,10 @@ export class ConstraintViolationPayloadBuilder {
 
     if (spec['format'] !== undefined) {
       if (spec['format'] === StringFormats.DATE) {
-        const currentValue = correctPayload[prop]
-
-        const pastMoment = moment(currentValue)
+        const pastMoment = moment(correctValue)
           .subtract(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
           .format('YYYY-MM-DD')
-        const futureMoment = moment(currentValue)
+        const futureMoment = moment(correctValue)
           .add(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
           .format('YYYY-MM-DD')
 
@@ -45,12 +42,10 @@ export class ConstraintViolationPayloadBuilder {
       }
 
       if (spec['format'] === StringFormats.DATETIME) {
-        const currentValue = correctPayload[prop]
-
-        const pastMoment = moment(currentValue)
+        const pastMoment = moment(correctValue)
           .subtract(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
           .toISOString()
-        const futureMoment = moment(currentValue)
+        const futureMoment = moment(correctValue)
           .add(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
           .toISOString()
 
@@ -134,9 +129,8 @@ export class ConstraintViolationPayloadBuilder {
       switch (items['type']) {
         case SchemaDataTypes.STRING: {
           const variants = this.generateStringPayloads(
-            prop,
             items,
-            correctPayload
+            correctPayload[prop][0]
           )
           for (let i = 0; i < variants.length; i++) {
             const v = variants[i]
@@ -197,9 +191,8 @@ export class ConstraintViolationPayloadBuilder {
         switch ((propSpec as InputSpec)['type']) {
           case SchemaDataTypes.STRING: {
             const variants = this.generateStringPayloads(
-              prop,
               propSpec as InputSpec,
-              correctPayload
+              correctPayload[prop]
             )
             for (let i = 0; i < variants.length; i++) {
               const v = variants[i]
