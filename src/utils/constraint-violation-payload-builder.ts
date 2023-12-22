@@ -1,6 +1,8 @@
+import moment from 'moment'
 import {
   NumberRange,
   SchemaDataTypes,
+  StringFormats,
   StringRange,
 } from '../enums/openapi-data-types'
 import { InputSpec, ObjectPayload } from '../types/common'
@@ -8,8 +10,13 @@ import { InputSpec, ObjectPayload } from '../types/common'
 export class ConstraintViolationPayloadBuilder {
   private static readonly STR_MAX_LENGTH = 65535
   private static readonly NUMBER_ADJUSTMENT = 1000000
+  private static readonly STR_DATETIME_YEAR_ADJUSTMENT = 100
 
-  private static generateStringPayloads = (spec: InputSpec): string[] => {
+  private static generateStringPayloads = (
+    prop: string,
+    spec: InputSpec,
+    correctPayload: ObjectPayload
+  ): string[] => {
     const payloads = ['', 'f'.repeat(this.STR_MAX_LENGTH)]
 
     if (
@@ -21,6 +28,34 @@ export class ConstraintViolationPayloadBuilder {
 
     if (spec[StringRange.MAX_LENGTH] !== undefined) {
       payloads.push('f'.repeat(spec[StringRange.MAX_LENGTH] + 100))
+    }
+
+    if (spec['format'] !== undefined) {
+      if (spec['format'] === StringFormats.DATE) {
+        const currentValue = correctPayload[prop]
+
+        const pastMoment = moment(currentValue)
+          .subtract(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
+          .format('YYYY-MM-DD')
+        const futureMoment = moment(currentValue)
+          .add(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
+          .format('YYYY-MM-DD')
+
+        payloads.push(pastMoment, futureMoment)
+      }
+
+      if (spec['format'] === StringFormats.DATETIME) {
+        const currentValue = correctPayload[prop]
+
+        const pastMoment = moment(currentValue)
+          .subtract(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
+          .toISOString()
+        const futureMoment = moment(currentValue)
+          .add(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
+          .toISOString()
+
+        payloads.push(pastMoment, futureMoment)
+      }
     }
 
     return payloads
@@ -98,7 +133,11 @@ export class ConstraintViolationPayloadBuilder {
     if (items !== undefined) {
       switch (items['type']) {
         case SchemaDataTypes.STRING: {
-          const variants = this.generateStringPayloads(items)
+          const variants = this.generateStringPayloads(
+            prop,
+            items,
+            correctPayload
+          )
           for (let i = 0; i < variants.length; i++) {
             const v = variants[i]
 
@@ -157,7 +196,11 @@ export class ConstraintViolationPayloadBuilder {
       for (const [prop, propSpec] of Object.entries(properties)) {
         switch ((propSpec as InputSpec)['type']) {
           case SchemaDataTypes.STRING: {
-            const variants = this.generateStringPayloads(propSpec as InputSpec)
+            const variants = this.generateStringPayloads(
+              prop,
+              propSpec as InputSpec,
+              correctPayload
+            )
             for (let i = 0; i < variants.length; i++) {
               const v = variants[i]
 
