@@ -4,23 +4,31 @@ import { ConstraintViolationPayloadBuilder } from '../constraint-violation-paylo
 
 const STR_MAX_LENGTH = 65535
 const NUMBER_ADJUSTMENT = 1000000
-const STR_DATETIME_YEAR_ADJUSTMENT = 100
+const STR_DATETIME_YEAR_ADJUSTMENT = [100, 1000, 10000, 100000]
 
 const ANY_DATE = '1990-12-22'
-const PAST_ANY_DATE = moment(ANY_DATE)
-  .subtract(STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-  .format('YYYY-MM-DD')
-const FUTURE_ANY_DATE = moment(ANY_DATE)
-  .add(STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-  .format('YYYY-MM-DD')
+const ANY_DATE_ADJUSTMENTS: string[] = []
+for (let i = 0; i < STR_DATETIME_YEAR_ADJUSTMENT.length; i++) {
+  const yearAdjustment = STR_DATETIME_YEAR_ADJUSTMENT[i]
+
+  const past = moment(ANY_DATE)
+    .subtract(yearAdjustment, 'y')
+    .format('YYYY-MM-DD')
+  const future = moment(ANY_DATE).add(yearAdjustment, 'y').format('YYYY-MM-DD')
+
+  ANY_DATE_ADJUSTMENTS.push(past, future)
+}
 
 const ANY_DATETIME = '1990-12-22 14:45:00'
-const PAST_ANY_DATETIME = moment(ANY_DATETIME)
-  .subtract(STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-  .toISOString()
-const FUTURE_ANY_DATETIME = moment(ANY_DATETIME)
-  .add(STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-  .toISOString()
+const ANY_DATETIME_ADJUSTMENTS: string[] = []
+for (let i = 0; i < STR_DATETIME_YEAR_ADJUSTMENT.length; i++) {
+  const yearAdjustment = STR_DATETIME_YEAR_ADJUSTMENT[i]
+
+  const past = moment(ANY_DATETIME).subtract(yearAdjustment, 'y').toISOString()
+  const future = moment(ANY_DATETIME).add(yearAdjustment, 'y').toISOString()
+
+  ANY_DATETIME_ADJUSTMENTS.push(past, future)
+}
 
 it('returns constraint-violation payload variants for simple object', () => {
   const objectSchema: InputSpec = {
@@ -103,12 +111,42 @@ it('returns constraint-violation payload variants for simple object', () => {
     {
       name: 'danar',
       age: 33,
-      birthDate: PAST_ANY_DATE,
+      birthDate: ANY_DATE_ADJUSTMENTS[0],
     },
     {
       name: 'danar',
       age: 33,
-      birthDate: FUTURE_ANY_DATE,
+      birthDate: ANY_DATE_ADJUSTMENTS[1],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      birthDate: ANY_DATE_ADJUSTMENTS[2],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      birthDate: ANY_DATE_ADJUSTMENTS[3],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      birthDate: ANY_DATE_ADJUSTMENTS[4],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      birthDate: ANY_DATE_ADJUSTMENTS[5],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      birthDate: ANY_DATE_ADJUSTMENTS[6],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      birthDate: ANY_DATE_ADJUSTMENTS[7],
     },
   ]
 
@@ -349,7 +387,7 @@ it('returns constraint-violation payload variants for nested object', () => {
       monster: {
         name: 'charmender',
         age: 1,
-        birthDate: PAST_ANY_DATETIME,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[0],
       },
     },
     {
@@ -358,7 +396,61 @@ it('returns constraint-violation payload variants for nested object', () => {
       monster: {
         name: 'charmender',
         age: 1,
-        birthDate: FUTURE_ANY_DATETIME,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[1],
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[2],
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[3],
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[4],
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[5],
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[6],
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[7],
       },
     },
   ]
@@ -565,14 +657,56 @@ it('returns constraint-violation payload variants for object with nested simple 
       age: 33,
       monsters: ['charmender'],
       levels: [20],
-      matchDates: [PAST_ANY_DATE],
+      matchDates: [ANY_DATE_ADJUSTMENTS[0]],
     },
     {
       name: 'danar',
       age: 33,
       monsters: ['charmender'],
       levels: [20],
-      matchDates: [FUTURE_ANY_DATE],
+      matchDates: [ANY_DATE_ADJUSTMENTS[1]],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE_ADJUSTMENTS[2]],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE_ADJUSTMENTS[3]],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE_ADJUSTMENTS[4]],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE_ADJUSTMENTS[5]],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE_ADJUSTMENTS[6]],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE_ADJUSTMENTS[7]],
     },
   ]
 
@@ -943,7 +1077,7 @@ it('returns constraint-violation payload variants for object with nested array o
       ],
       matchs: [
         {
-          schedule: PAST_ANY_DATETIME,
+          schedule: ANY_DATETIME_ADJUSTMENTS[0],
         },
       ],
     },
@@ -958,7 +1092,97 @@ it('returns constraint-violation payload variants for object with nested array o
       ],
       matchs: [
         {
-          schedule: FUTURE_ANY_DATETIME,
+          schedule: ANY_DATETIME_ADJUSTMENTS[1],
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME_ADJUSTMENTS[2],
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME_ADJUSTMENTS[3],
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME_ADJUSTMENTS[4],
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME_ADJUSTMENTS[5],
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME_ADJUSTMENTS[6],
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME_ADJUSTMENTS[7],
         },
       ],
     },

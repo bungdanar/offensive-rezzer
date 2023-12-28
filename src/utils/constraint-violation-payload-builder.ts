@@ -10,7 +10,9 @@ import { InputSpec, ObjectPayload } from '../types/common'
 export class ConstraintViolationPayloadBuilder {
   private static readonly STR_MAX_LENGTH = 65535
   private static readonly NUMBER_ADJUSTMENT = 1000000
-  private static readonly STR_DATETIME_YEAR_ADJUSTMENT = 100
+  private static readonly STR_DATETIME_YEAR_ADJUSTMENT = [
+    100, 1000, 10000, 100000,
+  ]
 
   private static generateStringPayloads = (
     spec: InputSpec,
@@ -31,25 +33,33 @@ export class ConstraintViolationPayloadBuilder {
 
     if (spec['format'] !== undefined) {
       if (spec['format'] === StringFormats.DATE) {
-        const pastMoment = moment(correctValue)
-          .subtract(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-          .format('YYYY-MM-DD')
-        const futureMoment = moment(correctValue)
-          .add(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-          .format('YYYY-MM-DD')
+        for (let i = 0; i < this.STR_DATETIME_YEAR_ADJUSTMENT.length; i++) {
+          const yearAdjustment = this.STR_DATETIME_YEAR_ADJUSTMENT[i]
 
-        payloads.push(pastMoment, futureMoment)
+          const pastMoment = moment(correctValue)
+            .subtract(yearAdjustment, 'y')
+            .format('YYYY-MM-DD')
+          const futureMoment = moment(correctValue)
+            .add(yearAdjustment, 'y')
+            .format('YYYY-MM-DD')
+
+          payloads.push(pastMoment, futureMoment)
+        }
       }
 
       if (spec['format'] === StringFormats.DATETIME) {
-        const pastMoment = moment(correctValue)
-          .subtract(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-          .toISOString()
-        const futureMoment = moment(correctValue)
-          .add(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-          .toISOString()
+        for (let i = 0; i < this.STR_DATETIME_YEAR_ADJUSTMENT.length; i++) {
+          const yearAdjustment = this.STR_DATETIME_YEAR_ADJUSTMENT[i]
 
-        payloads.push(pastMoment, futureMoment)
+          const pastMoment = moment(correctValue)
+            .subtract(yearAdjustment, 'y')
+            .toISOString()
+          const futureMoment = moment(correctValue)
+            .add(yearAdjustment, 'y')
+            .toISOString()
+
+          payloads.push(pastMoment, futureMoment)
+        }
       }
     }
 
