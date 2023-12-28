@@ -9,7 +9,7 @@ import { InputSpec, ObjectPayload } from '../types/common'
 
 export class ConstraintViolationPayloadBuilder {
   private static readonly STR_MAX_LENGTH = 65535
-  private static readonly NUMBER_ADJUSTMENT = 1e6
+  private static readonly NUMBER_ADJUSTMENT = [1e6, 1e7, 1e8, 1e9]
   private static readonly STR_DATETIME_YEAR_ADJUSTMENT = [1e2, 1e3, 1e4, 1e5]
 
   private static generateStringPayloads = (
@@ -64,15 +64,30 @@ export class ConstraintViolationPayloadBuilder {
     return payloads
   }
 
-  private static generateNumberPayloads = (spec: InputSpec): number[] => {
+  private static generateNumberPayloads = (
+    spec: InputSpec,
+    correctValue: number
+  ): number[] => {
     const payloads = [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]
 
     if (spec[NumberRange.MINIMUM] !== undefined) {
-      payloads.push(spec[NumberRange.MINIMUM] - this.NUMBER_ADJUSTMENT)
+      for (let i = 0; i < this.NUMBER_ADJUSTMENT.length; i++) {
+        const adjustment = this.NUMBER_ADJUSTMENT[i]
+        payloads.push(spec[NumberRange.MINIMUM] - adjustment)
+      }
     }
 
     if (spec[NumberRange.MAXIMUM] !== undefined) {
-      payloads.push(spec[NumberRange.MAXIMUM] + this.NUMBER_ADJUSTMENT)
+      for (let i = 0; i < this.NUMBER_ADJUSTMENT.length; i++) {
+        const adjustment = this.NUMBER_ADJUSTMENT[i]
+        payloads.push(spec[NumberRange.MAXIMUM] + adjustment)
+      }
+    }
+
+    for (let i = 0; i < this.NUMBER_ADJUSTMENT.length; i++) {
+      const adjustment = this.NUMBER_ADJUSTMENT[i]
+      payloads.push(correctValue - adjustment)
+      payloads.push(correctValue + adjustment)
     }
 
     return payloads
@@ -154,7 +169,10 @@ export class ConstraintViolationPayloadBuilder {
 
         case SchemaDataTypes.NUMBER:
         case SchemaDataTypes.INTEGER: {
-          const variants = this.generateNumberPayloads(items)
+          const variants = this.generateNumberPayloads(
+            items,
+            correctPayload[prop][0]
+          )
           for (let i = 0; i < variants.length; i++) {
             const v = variants[i]
 
@@ -216,7 +234,10 @@ export class ConstraintViolationPayloadBuilder {
 
           case SchemaDataTypes.NUMBER:
           case SchemaDataTypes.INTEGER: {
-            const variants = this.generateNumberPayloads(propSpec as InputSpec)
+            const variants = this.generateNumberPayloads(
+              propSpec as InputSpec,
+              correctPayload[prop]
+            )
             for (let i = 0; i < variants.length; i++) {
               const v = variants[i]
 
