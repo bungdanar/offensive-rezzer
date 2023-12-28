@@ -9,10 +9,8 @@ import { InputSpec, ObjectPayload } from '../types/common'
 
 export class ConstraintViolationPayloadBuilder {
   private static readonly STR_MAX_LENGTH = 65535
-  private static readonly NUMBER_ADJUSTMENT = 1000000
-  private static readonly STR_DATETIME_YEAR_ADJUSTMENT = [
-    100, 1000, 10000, 100000,
-  ]
+  private static readonly NUMBER_ADJUSTMENT = 1e6
+  private static readonly STR_DATETIME_YEAR_ADJUSTMENT = [1e2, 1e3, 1e4, 1e5]
 
   private static generateStringPayloads = (
     spec: InputSpec,

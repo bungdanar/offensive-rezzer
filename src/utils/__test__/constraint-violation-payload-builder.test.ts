@@ -3,8 +3,8 @@ import { InputSpec, ObjectPayload } from '../../types/common'
 import { ConstraintViolationPayloadBuilder } from '../constraint-violation-payload-builder'
 
 const STR_MAX_LENGTH = 65535
-const NUMBER_ADJUSTMENT = 1000000
-const STR_DATETIME_YEAR_ADJUSTMENT = [100, 1000, 10000, 100000]
+const NUMBER_ADJUSTMENT = 1e6
+const STR_DATETIME_YEAR_ADJUSTMENT = [1e2, 1e3, 1e4, 1e5]
 
 const ANY_DATE = '1990-12-22'
 const ANY_DATE_ADJUSTMENTS: string[] = []
