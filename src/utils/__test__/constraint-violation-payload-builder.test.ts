@@ -90,6 +90,11 @@ it('returns constraint-violation payload variants for simple object', () => {
     },
     {
       name: 'danar',
+      age: BigInt('1' + '0'.repeat(1000)),
+      birthDate: ANY_DATE,
+    },
+    {
+      name: 'danar',
       age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[0],
       birthDate: ANY_DATE,
     },
@@ -331,6 +336,15 @@ it('returns constraint-violation payload variants for nested object', () => {
     },
     {
       name: 'danar',
+      age: BigInt('1' + '0'.repeat(1000)),
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
       age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[0],
       monster: {
         name: 'charmender',
@@ -532,6 +546,15 @@ it('returns constraint-violation payload variants for nested object', () => {
       monster: {
         name: 'charmender',
         age: Number.MAX_SAFE_INTEGER,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: BigInt('1' + '0'.repeat(1000)),
         birthDate: ANY_DATETIME,
       },
     },
@@ -896,6 +919,13 @@ it('returns constraint-violation payload variants for object with nested simple 
     },
     {
       name: 'danar',
+      age: BigInt('1' + '0'.repeat(1000)),
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
       age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[0],
       monsters: ['charmender'],
       levels: [20],
@@ -1054,6 +1084,13 @@ it('returns constraint-violation payload variants for object with nested simple 
       age: 33,
       monsters: ['charmender'],
       levels: [Number.MAX_SAFE_INTEGER],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [BigInt('1' + '0'.repeat(1000))],
       matchDates: [ANY_DATE],
     },
     {
@@ -1428,6 +1465,21 @@ it('returns constraint-violation payload variants for object with nested array o
     },
     {
       name: 'danar',
+      age: BigInt('1' + '0'.repeat(1000)),
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
       age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[0],
       monsters: [
         {
@@ -1756,6 +1808,21 @@ it('returns constraint-violation payload variants for object with nested array o
         {
           name: 'charmender',
           age: Number.MAX_SAFE_INTEGER,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: BigInt('1' + '0'.repeat(1000)),
         },
       ],
       matchs: [

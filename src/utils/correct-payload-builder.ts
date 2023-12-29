@@ -35,7 +35,7 @@ export class CorrectPayloadBuilder {
   }
 
   private static generateNumberPayload = (spec: InputSpec): number => {
-    let payload = 4
+    let payload = 1
 
     if (spec[NumberRange.MINIMUM] !== undefined) {
       payload = spec[NumberRange.MINIMUM]
@@ -45,7 +45,7 @@ export class CorrectPayloadBuilder {
   }
 
   private static generateIntegerPayload = (spec: InputSpec): number => {
-    let payload = 4
+    let payload = 1
 
     if (spec[NumberRange.MINIMUM] !== undefined) {
       payload = spec[NumberRange.MINIMUM]
