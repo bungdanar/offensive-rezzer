@@ -9,8 +9,8 @@ import { InputSpec, ObjectPayload } from '../types/common'
 
 export class ConstraintViolationPayloadBuilder {
   private static readonly STR_MAX_LENGTH = 65535
-  private static readonly NUMBER_ADJUSTMENT = 1000000
-  private static readonly STR_DATETIME_YEAR_ADJUSTMENT = 100
+  private static readonly NUMBER_ADJUSTMENT = [1e6, 1e7, 1e8, 1e9]
+  private static readonly STR_DATETIME_YEAR_ADJUSTMENT = [1e2, 1e3, 1e4, 1e5]
 
   private static generateStringPayloads = (
     spec: InputSpec,
@@ -31,40 +31,63 @@ export class ConstraintViolationPayloadBuilder {
 
     if (spec['format'] !== undefined) {
       if (spec['format'] === StringFormats.DATE) {
-        const pastMoment = moment(correctValue)
-          .subtract(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-          .format('YYYY-MM-DD')
-        const futureMoment = moment(correctValue)
-          .add(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-          .format('YYYY-MM-DD')
+        for (let i = 0; i < this.STR_DATETIME_YEAR_ADJUSTMENT.length; i++) {
+          const yearAdjustment = this.STR_DATETIME_YEAR_ADJUSTMENT[i]
 
-        payloads.push(pastMoment, futureMoment)
+          const pastMoment = moment(correctValue)
+            .subtract(yearAdjustment, 'y')
+            .format('YYYY-MM-DD')
+          const futureMoment = moment(correctValue)
+            .add(yearAdjustment, 'y')
+            .format('YYYY-MM-DD')
+
+          payloads.push(pastMoment, futureMoment)
+        }
       }
 
       if (spec['format'] === StringFormats.DATETIME) {
-        const pastMoment = moment(correctValue)
-          .subtract(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-          .toISOString()
-        const futureMoment = moment(correctValue)
-          .add(this.STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-          .toISOString()
+        for (let i = 0; i < this.STR_DATETIME_YEAR_ADJUSTMENT.length; i++) {
+          const yearAdjustment = this.STR_DATETIME_YEAR_ADJUSTMENT[i]
 
-        payloads.push(pastMoment, futureMoment)
+          const pastMoment = moment(correctValue)
+            .subtract(yearAdjustment, 'y')
+            .toISOString()
+          const futureMoment = moment(correctValue)
+            .add(yearAdjustment, 'y')
+            .toISOString()
+
+          payloads.push(pastMoment, futureMoment)
+        }
       }
     }
 
     return payloads
   }
 
-  private static generateNumberPayloads = (spec: InputSpec): number[] => {
+  private static generateNumberPayloads = (
+    spec: InputSpec,
+    correctValue: number
+  ): number[] => {
     const payloads = [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]
 
     if (spec[NumberRange.MINIMUM] !== undefined) {
-      payloads.push(spec[NumberRange.MINIMUM] - this.NUMBER_ADJUSTMENT)
+      for (let i = 0; i < this.NUMBER_ADJUSTMENT.length; i++) {
+        const adjustment = this.NUMBER_ADJUSTMENT[i]
+        payloads.push(spec[NumberRange.MINIMUM] - adjustment)
+      }
     }
 
     if (spec[NumberRange.MAXIMUM] !== undefined) {
-      payloads.push(spec[NumberRange.MAXIMUM] + this.NUMBER_ADJUSTMENT)
+      for (let i = 0; i < this.NUMBER_ADJUSTMENT.length; i++) {
+        const adjustment = this.NUMBER_ADJUSTMENT[i]
+        payloads.push(spec[NumberRange.MAXIMUM] + adjustment)
+      }
+    }
+
+    for (let i = 0; i < this.NUMBER_ADJUSTMENT.length; i++) {
+      const adjustment = this.NUMBER_ADJUSTMENT[i]
+      payloads.push(correctValue - adjustment)
+      payloads.push(correctValue + adjustment)
     }
 
     return payloads
@@ -146,7 +169,10 @@ export class ConstraintViolationPayloadBuilder {
 
         case SchemaDataTypes.NUMBER:
         case SchemaDataTypes.INTEGER: {
-          const variants = this.generateNumberPayloads(items)
+          const variants = this.generateNumberPayloads(
+            items,
+            correctPayload[prop][0]
+          )
           for (let i = 0; i < variants.length; i++) {
             const v = variants[i]
 
@@ -208,7 +234,10 @@ export class ConstraintViolationPayloadBuilder {
 
           case SchemaDataTypes.NUMBER:
           case SchemaDataTypes.INTEGER: {
-            const variants = this.generateNumberPayloads(propSpec as InputSpec)
+            const variants = this.generateNumberPayloads(
+              propSpec as InputSpec,
+              correctPayload[prop]
+            )
             for (let i = 0; i < variants.length; i++) {
               const v = variants[i]
 

@@ -3,24 +3,32 @@ import { InputSpec, ObjectPayload } from '../../types/common'
 import { ConstraintViolationPayloadBuilder } from '../constraint-violation-payload-builder'
 
 const STR_MAX_LENGTH = 65535
-const NUMBER_ADJUSTMENT = 1000000
-const STR_DATETIME_YEAR_ADJUSTMENT = 100
+const NUMBER_ADJUSTMENT = [1e6, 1e7, 1e8, 1e9]
+const STR_DATETIME_YEAR_ADJUSTMENT = [1e2, 1e3, 1e4, 1e5]
 
 const ANY_DATE = '1990-12-22'
-const PAST_ANY_DATE = moment(ANY_DATE)
-  .subtract(STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-  .format('YYYY-MM-DD')
-const FUTURE_ANY_DATE = moment(ANY_DATE)
-  .add(STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-  .format('YYYY-MM-DD')
+const ANY_DATE_ADJUSTMENTS: string[] = []
+for (let i = 0; i < STR_DATETIME_YEAR_ADJUSTMENT.length; i++) {
+  const yearAdjustment = STR_DATETIME_YEAR_ADJUSTMENT[i]
+
+  const past = moment(ANY_DATE)
+    .subtract(yearAdjustment, 'y')
+    .format('YYYY-MM-DD')
+  const future = moment(ANY_DATE).add(yearAdjustment, 'y').format('YYYY-MM-DD')
+
+  ANY_DATE_ADJUSTMENTS.push(past, future)
+}
 
 const ANY_DATETIME = '1990-12-22 14:45:00'
-const PAST_ANY_DATETIME = moment(ANY_DATETIME)
-  .subtract(STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-  .toISOString()
-const FUTURE_ANY_DATETIME = moment(ANY_DATETIME)
-  .add(STR_DATETIME_YEAR_ADJUSTMENT, 'y')
-  .toISOString()
+const ANY_DATETIME_ADJUSTMENTS: string[] = []
+for (let i = 0; i < STR_DATETIME_YEAR_ADJUSTMENT.length; i++) {
+  const yearAdjustment = STR_DATETIME_YEAR_ADJUSTMENT[i]
+
+  const past = moment(ANY_DATETIME).subtract(yearAdjustment, 'y').toISOString()
+  const future = moment(ANY_DATETIME).add(yearAdjustment, 'y').toISOString()
+
+  ANY_DATETIME_ADJUSTMENTS.push(past, future)
+}
 
 it('returns constraint-violation payload variants for simple object', () => {
   const objectSchema: InputSpec = {
@@ -82,12 +90,82 @@ it('returns constraint-violation payload variants for simple object', () => {
     },
     {
       name: 'danar',
-      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT,
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[0],
       birthDate: ANY_DATE,
     },
     {
       name: 'danar',
-      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT,
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[1],
+      birthDate: ANY_DATE,
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[2],
+      birthDate: ANY_DATE,
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[3],
+      birthDate: ANY_DATE,
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[0],
+      birthDate: ANY_DATE,
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[1],
+      birthDate: ANY_DATE,
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[2],
+      birthDate: ANY_DATE,
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[3],
+      birthDate: ANY_DATE,
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[0],
+      birthDate: ANY_DATE,
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[0],
+      birthDate: ANY_DATE,
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[1],
+      birthDate: ANY_DATE,
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[1],
+      birthDate: ANY_DATE,
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[2],
+      birthDate: ANY_DATE,
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[2],
+      birthDate: ANY_DATE,
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[3],
+      birthDate: ANY_DATE,
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[3],
       birthDate: ANY_DATE,
     },
     {
@@ -103,12 +181,42 @@ it('returns constraint-violation payload variants for simple object', () => {
     {
       name: 'danar',
       age: 33,
-      birthDate: PAST_ANY_DATE,
+      birthDate: ANY_DATE_ADJUSTMENTS[0],
     },
     {
       name: 'danar',
       age: 33,
-      birthDate: FUTURE_ANY_DATE,
+      birthDate: ANY_DATE_ADJUSTMENTS[1],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      birthDate: ANY_DATE_ADJUSTMENTS[2],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      birthDate: ANY_DATE_ADJUSTMENTS[3],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      birthDate: ANY_DATE_ADJUSTMENTS[4],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      birthDate: ANY_DATE_ADJUSTMENTS[5],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      birthDate: ANY_DATE_ADJUSTMENTS[6],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      birthDate: ANY_DATE_ADJUSTMENTS[7],
     },
   ]
 
@@ -223,7 +331,7 @@ it('returns constraint-violation payload variants for nested object', () => {
     },
     {
       name: 'danar',
-      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT,
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[0],
       monster: {
         name: 'charmender',
         age: 1,
@@ -232,7 +340,133 @@ it('returns constraint-violation payload variants for nested object', () => {
     },
     {
       name: 'danar',
-      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT,
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[1],
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[2],
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[3],
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[0],
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[1],
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[2],
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[3],
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[0],
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[0],
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[1],
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[1],
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[2],
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[2],
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[3],
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[3],
       monster: {
         name: 'charmender',
         age: 1,
@@ -309,7 +543,43 @@ it('returns constraint-violation payload variants for nested object', () => {
         age:
           objectSchema['properties']['monster']['properties']['age'][
             'minimum'
-          ] - NUMBER_ADJUSTMENT,
+          ] - NUMBER_ADJUSTMENT[0],
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age:
+          objectSchema['properties']['monster']['properties']['age'][
+            'minimum'
+          ] - NUMBER_ADJUSTMENT[1],
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age:
+          objectSchema['properties']['monster']['properties']['age'][
+            'minimum'
+          ] - NUMBER_ADJUSTMENT[2],
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age:
+          objectSchema['properties']['monster']['properties']['age'][
+            'minimum'
+          ] - NUMBER_ADJUSTMENT[3],
         birthDate: ANY_DATETIME,
       },
     },
@@ -321,7 +591,115 @@ it('returns constraint-violation payload variants for nested object', () => {
         age:
           objectSchema['properties']['monster']['properties']['age'][
             'maximum'
-          ] + NUMBER_ADJUSTMENT,
+          ] + NUMBER_ADJUSTMENT[0],
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age:
+          objectSchema['properties']['monster']['properties']['age'][
+            'maximum'
+          ] + NUMBER_ADJUSTMENT[1],
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age:
+          objectSchema['properties']['monster']['properties']['age'][
+            'maximum'
+          ] + NUMBER_ADJUSTMENT[2],
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age:
+          objectSchema['properties']['monster']['properties']['age'][
+            'maximum'
+          ] + NUMBER_ADJUSTMENT[3],
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1 - NUMBER_ADJUSTMENT[0],
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1 + NUMBER_ADJUSTMENT[0],
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1 - NUMBER_ADJUSTMENT[1],
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1 + NUMBER_ADJUSTMENT[1],
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1 - NUMBER_ADJUSTMENT[2],
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1 + NUMBER_ADJUSTMENT[2],
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1 - NUMBER_ADJUSTMENT[3],
+        birthDate: ANY_DATETIME,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1 + NUMBER_ADJUSTMENT[3],
         birthDate: ANY_DATETIME,
       },
     },
@@ -349,7 +727,7 @@ it('returns constraint-violation payload variants for nested object', () => {
       monster: {
         name: 'charmender',
         age: 1,
-        birthDate: PAST_ANY_DATETIME,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[0],
       },
     },
     {
@@ -358,7 +736,61 @@ it('returns constraint-violation payload variants for nested object', () => {
       monster: {
         name: 'charmender',
         age: 1,
-        birthDate: FUTURE_ANY_DATETIME,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[1],
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[2],
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[3],
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[4],
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[5],
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[6],
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1,
+        birthDate: ANY_DATETIME_ADJUSTMENTS[7],
       },
     },
   ]
@@ -464,14 +896,112 @@ it('returns constraint-violation payload variants for object with nested simple 
     },
     {
       name: 'danar',
-      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT,
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[0],
       monsters: ['charmender'],
       levels: [20],
       matchDates: [ANY_DATE],
     },
     {
       name: 'danar',
-      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT,
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[1],
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[2],
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[3],
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[0],
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[1],
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[2],
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[3],
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[0],
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[0],
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[1],
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[1],
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[2],
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[2],
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[3],
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[3],
       monsters: ['charmender'],
       levels: [20],
       matchDates: [ANY_DATE],
@@ -532,7 +1062,37 @@ it('returns constraint-violation payload variants for object with nested simple 
       monsters: ['charmender'],
       levels: [
         objectSchema['properties']['levels']['items']['minimum'] -
-          NUMBER_ADJUSTMENT,
+          NUMBER_ADJUSTMENT[0],
+      ],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [
+        objectSchema['properties']['levels']['items']['minimum'] -
+          NUMBER_ADJUSTMENT[1],
+      ],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [
+        objectSchema['properties']['levels']['items']['minimum'] -
+          NUMBER_ADJUSTMENT[2],
+      ],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [
+        objectSchema['properties']['levels']['items']['minimum'] -
+          NUMBER_ADJUSTMENT[3],
       ],
       matchDates: [ANY_DATE],
     },
@@ -542,8 +1102,94 @@ it('returns constraint-violation payload variants for object with nested simple 
       monsters: ['charmender'],
       levels: [
         objectSchema['properties']['levels']['items']['maximum'] +
-          NUMBER_ADJUSTMENT,
+          NUMBER_ADJUSTMENT[0],
       ],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [
+        objectSchema['properties']['levels']['items']['maximum'] +
+          NUMBER_ADJUSTMENT[1],
+      ],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [
+        objectSchema['properties']['levels']['items']['maximum'] +
+          NUMBER_ADJUSTMENT[2],
+      ],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [
+        objectSchema['properties']['levels']['items']['maximum'] +
+          NUMBER_ADJUSTMENT[3],
+      ],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20 - NUMBER_ADJUSTMENT[0]],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20 + NUMBER_ADJUSTMENT[0]],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20 - NUMBER_ADJUSTMENT[1]],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20 + NUMBER_ADJUSTMENT[1]],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20 - NUMBER_ADJUSTMENT[2]],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20 + NUMBER_ADJUSTMENT[2]],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20 - NUMBER_ADJUSTMENT[3]],
+      matchDates: [ANY_DATE],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20 + NUMBER_ADJUSTMENT[3]],
       matchDates: [ANY_DATE],
     },
     {
@@ -565,14 +1211,56 @@ it('returns constraint-violation payload variants for object with nested simple 
       age: 33,
       monsters: ['charmender'],
       levels: [20],
-      matchDates: [PAST_ANY_DATE],
+      matchDates: [ANY_DATE_ADJUSTMENTS[0]],
     },
     {
       name: 'danar',
       age: 33,
       monsters: ['charmender'],
       levels: [20],
-      matchDates: [FUTURE_ANY_DATE],
+      matchDates: [ANY_DATE_ADJUSTMENTS[1]],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE_ADJUSTMENTS[2]],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE_ADJUSTMENTS[3]],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE_ADJUSTMENTS[4]],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE_ADJUSTMENTS[5]],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE_ADJUSTMENTS[6]],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: ['charmender'],
+      levels: [20],
+      matchDates: [ANY_DATE_ADJUSTMENTS[7]],
     },
   ]
 
@@ -740,7 +1428,7 @@ it('returns constraint-violation payload variants for object with nested array o
     },
     {
       name: 'danar',
-      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT,
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[0],
       monsters: [
         {
           name: 'charmender',
@@ -755,7 +1443,217 @@ it('returns constraint-violation payload variants for object with nested array o
     },
     {
       name: 'danar',
-      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT,
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[1],
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[2],
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['minimum'] - NUMBER_ADJUSTMENT[3],
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[0],
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[1],
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[2],
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: objectSchema['properties']['age']['maximum'] + NUMBER_ADJUSTMENT[3],
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[0],
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[0],
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[1],
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[1],
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[2],
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[2],
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33 - NUMBER_ADJUSTMENT[3],
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33 + NUMBER_ADJUSTMENT[3],
       monsters: [
         {
           name: 'charmender',
@@ -875,7 +1773,7 @@ it('returns constraint-violation payload variants for object with nested array o
           age:
             objectSchema['properties']['monsters']['items']['properties'][
               'age'
-            ]['minimum'] - NUMBER_ADJUSTMENT,
+            ]['minimum'] - NUMBER_ADJUSTMENT[0],
         },
       ],
       matchs: [
@@ -893,7 +1791,235 @@ it('returns constraint-violation payload variants for object with nested array o
           age:
             objectSchema['properties']['monsters']['items']['properties'][
               'age'
-            ]['maximum'] + NUMBER_ADJUSTMENT,
+            ]['minimum'] - NUMBER_ADJUSTMENT[1],
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age:
+            objectSchema['properties']['monsters']['items']['properties'][
+              'age'
+            ]['minimum'] - NUMBER_ADJUSTMENT[2],
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age:
+            objectSchema['properties']['monsters']['items']['properties'][
+              'age'
+            ]['minimum'] - NUMBER_ADJUSTMENT[3],
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age:
+            objectSchema['properties']['monsters']['items']['properties'][
+              'age'
+            ]['maximum'] + NUMBER_ADJUSTMENT[0],
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age:
+            objectSchema['properties']['monsters']['items']['properties'][
+              'age'
+            ]['maximum'] + NUMBER_ADJUSTMENT[1],
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age:
+            objectSchema['properties']['monsters']['items']['properties'][
+              'age'
+            ]['maximum'] + NUMBER_ADJUSTMENT[2],
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age:
+            objectSchema['properties']['monsters']['items']['properties'][
+              'age'
+            ]['maximum'] + NUMBER_ADJUSTMENT[3],
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1 - NUMBER_ADJUSTMENT[0],
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1 + NUMBER_ADJUSTMENT[0],
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1 - NUMBER_ADJUSTMENT[1],
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1 + NUMBER_ADJUSTMENT[1],
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1 - NUMBER_ADJUSTMENT[2],
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1 + NUMBER_ADJUSTMENT[2],
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1 - NUMBER_ADJUSTMENT[3],
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1 + NUMBER_ADJUSTMENT[3],
         },
       ],
       matchs: [
@@ -943,7 +2069,7 @@ it('returns constraint-violation payload variants for object with nested array o
       ],
       matchs: [
         {
-          schedule: PAST_ANY_DATETIME,
+          schedule: ANY_DATETIME_ADJUSTMENTS[0],
         },
       ],
     },
@@ -958,7 +2084,97 @@ it('returns constraint-violation payload variants for object with nested array o
       ],
       matchs: [
         {
-          schedule: FUTURE_ANY_DATETIME,
+          schedule: ANY_DATETIME_ADJUSTMENTS[1],
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME_ADJUSTMENTS[2],
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME_ADJUSTMENTS[3],
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME_ADJUSTMENTS[4],
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME_ADJUSTMENTS[5],
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME_ADJUSTMENTS[6],
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+      matchs: [
+        {
+          schedule: ANY_DATETIME_ADJUSTMENTS[7],
         },
       ],
     },
