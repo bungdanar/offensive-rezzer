@@ -67,8 +67,12 @@ export class ConstraintViolationPayloadBuilder {
   private static generateNumberPayloads = (
     spec: InputSpec,
     correctValue: number
-  ): number[] => {
-    const payloads = [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER]
+  ): (number | bigint)[] => {
+    const payloads = [
+      Number.MIN_SAFE_INTEGER,
+      Number.MAX_SAFE_INTEGER,
+      BigInt('1' + '0'.repeat(1000)),
+    ]
 
     if (spec[NumberRange.MINIMUM] !== undefined) {
       for (let i = 0; i < this.NUMBER_ADJUSTMENT.length; i++) {

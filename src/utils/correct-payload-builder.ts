@@ -10,11 +10,16 @@ import {
 import { InputSpec, ObjectPayload } from '../types/common'
 
 export class CorrectPayloadBuilder {
-  private static generateStringPayload = (spec: InputSpec): string => {
+  private static generateStringPayload = (
+    spec: InputSpec,
+    useSpecDef: boolean
+  ): string => {
     let payload = 'fuzz'
 
-    if (spec[StringRange.MIN_LENGTH] !== undefined) {
-      payload = 'f'.repeat(spec[StringRange.MIN_LENGTH])
+    if (useSpecDef) {
+      if (spec[StringRange.MIN_LENGTH] !== undefined) {
+        payload = 'f'.repeat(spec[StringRange.MIN_LENGTH])
+      }
     }
 
     if (spec['pattern'] !== undefined) {
@@ -34,21 +39,31 @@ export class CorrectPayloadBuilder {
     return payload
   }
 
-  private static generateNumberPayload = (spec: InputSpec): number => {
-    let payload = 4
+  private static generateNumberPayload = (
+    spec: InputSpec,
+    useSpecDef: boolean
+  ): number => {
+    let payload = 1
 
-    if (spec[NumberRange.MINIMUM] !== undefined) {
-      payload = spec[NumberRange.MINIMUM]
+    if (useSpecDef) {
+      if (spec[NumberRange.MINIMUM] !== undefined) {
+        payload = spec[NumberRange.MINIMUM]
+      }
     }
 
     return payload
   }
 
-  private static generateIntegerPayload = (spec: InputSpec): number => {
-    let payload = 4
+  private static generateIntegerPayload = (
+    spec: InputSpec,
+    useSpecDef: boolean
+  ): number => {
+    let payload = 1
 
-    if (spec[NumberRange.MINIMUM] !== undefined) {
-      payload = spec[NumberRange.MINIMUM]
+    if (useSpecDef) {
+      if (spec[NumberRange.MINIMUM] !== undefined) {
+        payload = spec[NumberRange.MINIMUM]
+      }
     }
 
     return payload
@@ -59,24 +74,27 @@ export class CorrectPayloadBuilder {
     return Boolean(payload)
   }
 
-  public static generateArrayPayload = (spec: InputSpec): Array<any> => {
+  public static generateArrayPayload = (
+    spec: InputSpec,
+    useSpecDef: boolean
+  ): Array<any> => {
     const payload: Array<any> = []
 
     const items = spec['items']
     if (items !== undefined) {
       switch (items['type']) {
         case SchemaDataTypes.STRING: {
-          payload.push(this.generateStringPayload(items))
+          payload.push(this.generateStringPayload(items, useSpecDef))
           break
         }
 
         case SchemaDataTypes.NUMBER: {
-          payload.push(this.generateNumberPayload(items))
+          payload.push(this.generateNumberPayload(items, useSpecDef))
           break
         }
 
         case SchemaDataTypes.INTEGER: {
-          payload.push(this.generateIntegerPayload(items))
+          payload.push(this.generateIntegerPayload(items, useSpecDef))
           break
         }
 
@@ -86,12 +104,12 @@ export class CorrectPayloadBuilder {
         }
 
         case SchemaDataTypes.ARRAY: {
-          payload.push(this.generateArrayPayload(items))
+          payload.push(this.generateArrayPayload(items, useSpecDef))
           break
         }
 
         case SchemaDataTypes.OBJECT: {
-          payload.push(this.generateObjectPayload(items))
+          payload.push(this.generateObjectPayload(items, useSpecDef))
           break
         }
 
@@ -103,7 +121,10 @@ export class CorrectPayloadBuilder {
     return payload
   }
 
-  public static generateObjectPayload = (spec: InputSpec): ObjectPayload => {
+  public static generateObjectPayload = (
+    spec: InputSpec,
+    useSpecDef: boolean
+  ): ObjectPayload => {
     const payload: ObjectPayload = {}
 
     const properties = spec['properties']
@@ -111,17 +132,26 @@ export class CorrectPayloadBuilder {
       for (const [prop, propSpec] of Object.entries(properties)) {
         switch ((propSpec as InputSpec)['type']) {
           case SchemaDataTypes.STRING: {
-            payload[prop] = this.generateStringPayload(propSpec as InputSpec)
+            payload[prop] = this.generateStringPayload(
+              propSpec as InputSpec,
+              useSpecDef
+            )
             break
           }
 
           case SchemaDataTypes.NUMBER: {
-            payload[prop] = this.generateNumberPayload(propSpec as InputSpec)
+            payload[prop] = this.generateNumberPayload(
+              propSpec as InputSpec,
+              useSpecDef
+            )
             break
           }
 
           case SchemaDataTypes.INTEGER: {
-            payload[prop] = this.generateIntegerPayload(propSpec as InputSpec)
+            payload[prop] = this.generateIntegerPayload(
+              propSpec as InputSpec,
+              useSpecDef
+            )
             break
           }
 
@@ -131,12 +161,18 @@ export class CorrectPayloadBuilder {
           }
 
           case SchemaDataTypes.ARRAY: {
-            payload[prop] = this.generateArrayPayload(propSpec as InputSpec)
+            payload[prop] = this.generateArrayPayload(
+              propSpec as InputSpec,
+              useSpecDef
+            )
             break
           }
 
           case SchemaDataTypes.OBJECT: {
-            payload[prop] = this.generateObjectPayload(propSpec as InputSpec)
+            payload[prop] = this.generateObjectPayload(
+              propSpec as InputSpec,
+              useSpecDef
+            )
             break
           }
 
