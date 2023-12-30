@@ -39,7 +39,5 @@ export class FuzzingRequest {
         }
       }
     }
-
-    console.log('Sending fuzzing payloads to all endpoints is completed')
   }
 }
