@@ -9,7 +9,8 @@ import { ConstraintViolationPayloadBuilder } from './constraint-violation-payloa
 
 export class PayloadBuilder {
   public static buildFuzzingPayloads = (
-    apiSpec: OpenAPI.Document
+    apiSpec: OpenAPI.Document,
+    useSpecDef: boolean
   ): AllPayloads => {
     const allPayloads: AllPayloads = {}
 
@@ -33,8 +34,10 @@ export class PayloadBuilder {
           )
 
           const schema = MethodDetailsHelper.getSchema(methodDetails as any)
-          const correctPayload =
-            CorrectPayloadBuilder.generateObjectPayload(schema)
+          const correctPayload = CorrectPayloadBuilder.generateObjectPayload(
+            schema,
+            useSpecDef
+          )
 
           const missingPayloads = MissingPayloadBuilder.generateObjectPayload(
             correctPayload,

@@ -5,7 +5,7 @@ import { FuzzingRequest } from './utils/fuzzing-request'
 const app = async () => {
   try {
     const apiSpec = await OpenApiParser.validate('openapi.json')
-    const allPayloads = PayloadBuilder.buildFuzzingPayloads(apiSpec)
+    const allPayloads = PayloadBuilder.buildFuzzingPayloads(apiSpec, true)
 
     await FuzzingRequest.sendPayloads(apiSpec, allPayloads)
   } catch (error) {
