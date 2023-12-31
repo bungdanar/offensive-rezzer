@@ -1,16 +1,21 @@
 import { OpenAPI } from 'openapi-types'
-import axios, { AxiosError } from 'axios'
+import axios, { AxiosError, AxiosResponse } from 'axios'
 import { AllPayloads } from '../types/common'
 import JSONbig from 'json-bigint'
 import { getErrorMessage } from './get-err-message'
 import { consoleLogger, errorLogger } from './logger'
+import { Report } from './report'
 
 export class FuzzingRequest {
-  private static handleReqError = (url: string, error: unknown) => {
+  private static handleReqError = (
+    url: string,
+    error: unknown
+  ): AxiosResponse | null => {
+    let data: AxiosResponse | null = null
+
     if (error instanceof AxiosError) {
       if (error.response) {
-        // Log to report
-        consoleLogger.error(error)
+        data = error.response
       } else {
         consoleLogger.error(`Cannot send request to ${url}`)
       }
@@ -19,11 +24,18 @@ export class FuzzingRequest {
       // Log the error
       errorLogger.error(errMessage)
     }
+
+    return data
   }
 
-  private static handlePostReq = async (url: string, data: any) => {
+  private static handlePostReq = async (
+    url: string,
+    payload: any
+  ): Promise<AxiosResponse | null> => {
+    let data: AxiosResponse | null = null
+
     try {
-      const serializedPayloads = JSON.stringify(data, (key, value) =>
+      const serializedPayloads = JSON.stringify(payload, (key, value) =>
         typeof value === 'bigint' ? JSONbig.stringify(value) : value
       )
 
@@ -33,10 +45,12 @@ export class FuzzingRequest {
         },
       })
 
-      consoleLogger.info(response)
+      data = response
     } catch (error) {
-      this.handleReqError(url, error)
+      data = this.handleReqError(url, error)
     }
+
+    return data
   }
 
   public static sendPayloads = async (
@@ -52,11 +66,31 @@ export class FuzzingRequest {
           `Sending fuzzing payloads to endpoint [${method}] ${path}`
         )
 
-        await Promise.all(
+        const responses = await Promise.all(
           payloads.map((payload) =>
             this.handlePostReq(`${TARGET_URL}${path}`, payload)
           )
         )
+
+        for (let i = 0; i < responses.length; i++) {
+          const r = responses[i]
+
+          if (r) {
+            let payload: any
+            try {
+              payload = JSONbig.parse(r.config.data)
+            } catch (error) {
+              payload = r.config.data
+            }
+
+            Report.addReportData({
+              path,
+              method,
+              statusCode: r.status,
+              payload: payload,
+            })
+          }
+        }
       }
     }
   }

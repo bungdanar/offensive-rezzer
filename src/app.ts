@@ -2,8 +2,8 @@ import OpenApiParser from '@readme/openapi-parser'
 import { PayloadBuilder } from './utils/payload-builder'
 import { FuzzingRequest } from './utils/fuzzing-request'
 import { Environment } from './utils/environment'
-import { getErrorMessage } from './utils/get-err-message'
-import { consoleLogger, errorLogger } from './utils/logger'
+import { consoleLogger } from './utils/logger'
+import { Report } from './utils/report'
 
 export const app = async () => {
   try {
@@ -19,11 +19,16 @@ export const app = async () => {
       const allPayloads = PayloadBuilder.buildFuzzingPayloads(apiSpec, isOdd)
       await FuzzingRequest.sendPayloads(apiSpec, allPayloads)
     }
-
     consoleLogger.info('Sending fuzzing payloads to all endpoints is completed')
+
+    consoleLogger.info('Generating fuzzing session report')
+    const report = Report.report
+    console.log(report)
   } catch (error) {
     // Any error in this point should be logged
-    const errMessage = getErrorMessage(error)
-    errorLogger.error(errMessage)
+    // const errMessage = getErrorMessage(error)
+    // errorLogger.error(errMessage)
+
+    console.error(error)
   }
 }
