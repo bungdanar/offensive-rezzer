@@ -30,7 +30,10 @@ export type PrettyReportStruct = {
     // Methods
     [key: string]: {
       // Status codes
-      [key: number]: { statusCode: number; payload: any }[]
+      [key: number]: {
+        numOfRequest: number
+        payloads: any[]
+      }
     }
   }
 }
