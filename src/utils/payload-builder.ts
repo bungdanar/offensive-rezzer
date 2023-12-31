@@ -6,6 +6,7 @@ import { CorrectPayloadBuilder } from './correct-payload-builder'
 import { MissingPayloadBuilder } from './missing-payload-builder'
 import { InvalidPayloadBuilder } from './invalid-payload-builder'
 import { ConstraintViolationPayloadBuilder } from './constraint-violation-payload-builder'
+import { consoleLogger } from './logger'
 
 export class PayloadBuilder {
   public static buildFuzzingPayloads = (
@@ -20,16 +21,16 @@ export class PayloadBuilder {
         // Iterating methods
         for (const [method, methodDetails] of Object.entries(methods)) {
           if (method !== HttpMethods.POST) {
-            console.log(`Operation for ${method} is not supported yet`)
+            consoleLogger.info(`Operation for ${method} is not supported yet`)
             continue
           }
 
           if (!MethodDetailsHelper.checkIfSchemaExists(methodDetails as any)) {
-            console.log('Schema does not exist. Skip this operation')
+            consoleLogger.info('Schema does not exist. Skip this operation')
             continue
           }
 
-          console.log(
+          consoleLogger.info(
             `Building fuzzing payloads for endpoint [${method}] ${path}`
           )
 
@@ -79,7 +80,7 @@ export class PayloadBuilder {
         }
       }
 
-      console.log('Building fuzzing payloads is completed')
+      consoleLogger.info('Building fuzzing payloads is completed')
 
       return allPayloads
     } else {
