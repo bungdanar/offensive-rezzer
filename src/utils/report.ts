@@ -17,10 +17,12 @@ export class Report {
     method,
     statusCode,
     payload,
+    response,
   }: AddReportData) => {
     const newData = {
       payload,
       statusCode,
+      response,
     }
 
     if (this.report[path] === undefined) {
@@ -53,13 +55,17 @@ export class Report {
 
         for (let i = 0; i < uniqStatusCode.length; i++) {
           const statusCode = uniqStatusCode[i]
-          const relatedPayloads = payloads
+
+          const relatedData = payloads
             .filter((p) => p.statusCode === statusCode)
-            .map((p) => p.payload)
+            .map((p) => ({
+              payload: p.payload,
+              response: p.response,
+            }))
 
           pretty[path][method][statusCode] = {
-            numOfRequest: relatedPayloads.length,
-            payloads: relatedPayloads,
+            numOfRequest: relatedData.length,
+            data: relatedData,
           }
         }
       }

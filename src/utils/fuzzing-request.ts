@@ -88,6 +88,7 @@ export class FuzzingRequest {
               method,
               statusCode: r.status,
               payload: payload,
+              response: r.data,
             })
           }
         }

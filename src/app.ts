@@ -21,7 +21,7 @@ export const app = async () => {
     }
     consoleLogger.info('Sending fuzzing payloads to all endpoints is completed')
 
-    consoleLogger.info('Generating fuzzing session report')
+    consoleLogger.info(`Generating fuzzing session report to 'report.json'`)
     await Report.writeReport()
   } catch (error) {
     // Any error in this point should be logged
