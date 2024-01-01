@@ -15,3 +15,40 @@ export type AllPayloads = {
     }[]
   }
 }
+
+export type ReportStruct = {
+  // Paths
+  [key: string]: {
+    // Methods
+    [key: string]: {
+      statusCode: number
+      payload: any
+      response: any
+    }[]
+  }
+}
+
+export type PrettyReportStruct = {
+  // Paths
+  [key: string]: {
+    // Methods
+    [key: string]: {
+      // Status codes
+      [key: number]: {
+        numOfRequest: number
+        data: {
+          payload: any
+          response: any
+        }[]
+      }
+    }
+  }
+}
+
+export type AddReportData = {
+  path: string
+  method: string
+  statusCode: number
+  payload: any
+  response: any
+}

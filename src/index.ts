@@ -1,26 +1,20 @@
-import OpenApiParser from '@readme/openapi-parser'
-import { PayloadBuilder } from './utils/payload-builder'
-import { FuzzingRequest } from './utils/fuzzing-request'
+import { app } from './app'
+import { Environment } from './utils/environment'
+import { getErrorMessage } from './utils/get-err-message'
+import { consoleLogger } from './utils/logger'
 
-const app = async () => {
+const start = async () => {
+  // Check configuration in env file
+  // If configuration is not valid, the app should stop immediately
   try {
-    const apiSpec = await OpenApiParser.validate('openapi.json')
-
-    const maxIter = 5
-    console.log(`Number of fuzzing iterations is ${maxIter}`)
-
-    for (let i = 1; i <= maxIter; i++) {
-      console.log(`Fuzzing iteration ${i}`)
-
-      const isOdd = i % 2 !== 0
-      const allPayloads = PayloadBuilder.buildFuzzingPayloads(apiSpec, isOdd)
-      await FuzzingRequest.sendPayloads(apiSpec, allPayloads)
-    }
-
-    console.log('Sending fuzzing payloads to all endpoints is completed')
+    Environment.checkEnvVariables()
   } catch (error) {
-    console.error(error)
+    consoleLogger.error(getErrorMessage(error))
+    process.exit(1)
   }
+
+  // Run the main app
+  await app()
 }
 
-app()
+start()
