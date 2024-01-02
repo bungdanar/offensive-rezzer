@@ -78,7 +78,7 @@ export class Report {
     const report = this.prettyReport
 
     await fs.writeFile(
-      'report.json',
+      'output/report.json',
       JSONbig.stringify(report, null, 2),
       'utf8'
     )

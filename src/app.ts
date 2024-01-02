@@ -7,7 +7,7 @@ import { Report } from './utils/report'
 
 export const app = async () => {
   try {
-    const apiSpec = await OpenApiParser.validate('openapi.json')
+    const apiSpec = await OpenApiParser.validate('api-spec/openapi.json')
 
     const maxIter = Environment.maxIter
     consoleLogger.info(`Number of fuzzing iterations is ${maxIter}`)
@@ -21,7 +21,9 @@ export const app = async () => {
     }
     consoleLogger.info('Sending fuzzing payloads to all endpoints is completed')
 
-    consoleLogger.info(`Generating fuzzing session report to 'report.json'`)
+    consoleLogger.info(
+      `Generating fuzzing session report to 'output/report.json'`
+    )
     await Report.writeReport()
   } catch (error) {
     // Any error in this point should be logged
