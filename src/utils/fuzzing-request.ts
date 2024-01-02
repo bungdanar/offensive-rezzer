@@ -5,8 +5,16 @@ import JSONbig from 'json-bigint'
 import { getErrorMessage } from './get-err-message'
 import { consoleLogger, errorLogger } from './logger'
 import { Report } from './report'
+import { Environment } from './environment'
 
 export class FuzzingRequest {
+  private static getTargetUrl = (apiSpec: OpenAPI.Document): string => {
+    return Environment.targetUrl !== undefined
+      ? Environment.targetUrl
+      : //@ts-ignore
+        (apiSpec.servers[0].url as string)
+  }
+
   private static handleReqError = (
     url: string,
     error: unknown
@@ -57,8 +65,7 @@ export class FuzzingRequest {
     apiSpec: OpenAPI.Document,
     allPayloads: AllPayloads
   ) => {
-    //@ts-ignore
-    const TARGET_URL = apiSpec.servers[0].url as string
+    const targetUrl = this.getTargetUrl(apiSpec)
 
     for (const [path, methods] of Object.entries(allPayloads)) {
       for (const [method, payloads] of Object.entries(methods)) {
@@ -68,7 +75,7 @@ export class FuzzingRequest {
 
         const responses = await Promise.all(
           payloads.map((payload) =>
-            this.handlePostReq(`${TARGET_URL}${path}`, payload)
+            this.handlePostReq(`${targetUrl}${path}`, payload)
           )
         )
 
