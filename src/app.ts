@@ -2,7 +2,7 @@ import OpenApiParser from '@readme/openapi-parser'
 import { PayloadBuilder } from './utils/payload-builder'
 import { FuzzingRequest } from './utils/fuzzing-request'
 import { Environment } from './utils/environment'
-import { consoleLogger } from './utils/logger'
+import { consoleLogger, errorLogger } from './utils/logger'
 import { Report } from './utils/report'
 
 export const app = async () => {
@@ -27,9 +27,6 @@ export const app = async () => {
     await Report.writeReport()
   } catch (error) {
     // Any error in this point should be logged
-    // const errMessage = getErrorMessage(error)
-    // errorLogger.error(errMessage)
-
-    console.error(error)
+    errorLogger.error(error)
   }
 }

@@ -2,7 +2,6 @@ import { OpenAPI } from 'openapi-types'
 import axios, { AxiosError, AxiosResponse } from 'axios'
 import { AllPayloads } from '../types/common'
 import JSONbig from 'json-bigint'
-import { getErrorMessage } from './get-err-message'
 import { consoleLogger, errorLogger } from './logger'
 import { Report } from './report'
 import { Environment } from './environment'
@@ -28,9 +27,8 @@ export class FuzzingRequest {
         consoleLogger.error(`Cannot send request to ${url}`)
       }
     } else {
-      const errMessage = getErrorMessage(error)
       // Log the error
-      errorLogger.error(errMessage)
+      errorLogger.error(error)
     }
 
     return data
