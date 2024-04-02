@@ -9,6 +9,11 @@ import { ConstraintViolationPayloadBuilder } from './constraint-violation-payloa
 import { consoleLogger } from './logger'
 
 export class PayloadBuilder {
+  private static hasParameter = (path: string): boolean => {
+    const parameterRegex = /\{([^}]+)\}/g
+    return parameterRegex.test(path)
+  }
+
   public static buildFuzzingPayloads = (
     apiSpec: OpenAPI.Document,
     useSpecDef: boolean
@@ -18,6 +23,14 @@ export class PayloadBuilder {
     // Iterating paths
     if (apiSpec.paths) {
       for (const [path, methods] of Object.entries(apiSpec.paths)) {
+        if (this.hasParameter(path)) {
+          consoleLogger.info(
+            'Operation for endpoint that contains path paramater is not supported yet'
+          )
+          consoleLogger.info(`Not supported endpoint: ${path}`)
+          continue
+        }
+
         // Iterating methods
         for (const [method, methodDetails] of Object.entries(methods)) {
           if (method !== HttpMethods.POST) {
