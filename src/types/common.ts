@@ -8,12 +8,14 @@ export type ObjectPayload = {
 
 export type AllPayloads = {
   // Paths
+  [key: string]: PathPayloads
+}
+
+export type PathPayloads = {
+  // Methods
   [key: string]: {
-    // Methods
-    [key: string]: {
-      [key: string]: any
-    }[]
-  }
+    [key: string]: any
+  }[]
 }
 
 export type ReportStruct = {

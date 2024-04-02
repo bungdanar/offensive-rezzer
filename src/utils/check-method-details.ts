@@ -1,5 +1,5 @@
 export class MethodDetailsHelper {
-  static checkIfSchemaExists = (methodDetails: {
+  static checkIfReqBodySchemaExists = (methodDetails: {
     [key: string]: any
   }): boolean => {
     return (
@@ -12,7 +12,7 @@ export class MethodDetailsHelper {
     )
   }
 
-  static getSchema = (methodDetails: { [key: string]: any }) => {
+  static getReqBodySchema = (methodDetails: { [key: string]: any }) => {
     return methodDetails['requestBody']['content']['application/json']['schema']
   }
 }
