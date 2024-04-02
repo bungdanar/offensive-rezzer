@@ -13,7 +13,14 @@ export type AllPayloads = {
 
 export type PathPayloads = {
   // Methods
-  [key: string]: {
+  [key: string]: MethodPayloads
+}
+
+export type MethodPayloads = {
+  reqBody: {
+    [key: string]: any
+  }[]
+  query: {
     [key: string]: any
   }[]
 }

@@ -72,7 +72,7 @@ export class FuzzingRequest {
         )
 
         const responses = await Promise.all(
-          payloads.map((payload) =>
+          payloads.reqBody.map((payload) =>
             this.handlePostReq(`${targetUrl}${path}`, payload)
           )
         )

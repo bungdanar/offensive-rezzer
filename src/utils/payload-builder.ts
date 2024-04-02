@@ -90,7 +90,10 @@ export class PayloadBuilder {
             useSpecDef
           )
 
-          pathPayloads[method] = reqBodyPayloads
+          pathPayloads[method] = {
+            reqBody: reqBodyPayloads,
+            query: [],
+          }
         }
 
         allPayloads[path] = pathPayloads
