@@ -13,6 +13,76 @@ export class PayloadBuilder {
     return parameterRegex.test(path)
   }
 
+  private static transformParamToObjSchema = (
+    params: any[]
+  ): { [key: string]: any } => {
+    const objSchema: { [key: string]: any } = {
+      type: 'object',
+      properties: {},
+    }
+
+    const requiredFields = params.filter((p) => p.required === true)
+    if (requiredFields.length > 0) {
+      objSchema['required'] = requiredFields.map((f) => f.name)
+    }
+
+    for (let i = 0; i < params.length; i++) {
+      const p = params[i]
+      objSchema['properties'][p.name] = p.schema
+    }
+
+    return objSchema
+  }
+
+  private static generatePayloadsForQuery = (
+    methodDetails: any,
+    method: string,
+    path: string,
+    useSpecDef: boolean
+  ): ObjectPayload[] => {
+    let generatedPayloads: ObjectPayload[] = []
+
+    if (MethodDetailsHelper.checkIfParametersExists(methodDetails)) {
+      consoleLogger.info(
+        `Building query fuzzing payloads for endpoint [${method}] ${path}`
+      )
+
+      const paramaters = MethodDetailsHelper.getParameters(methodDetails)
+      const query = paramaters.filter((p: any) => p.in === 'query')
+      const schema = this.transformParamToObjSchema(query)
+
+      const correctPayload = CorrectPayloadBuilder.generateObjectPayload(
+        schema,
+        useSpecDef
+      )
+
+      const missingPayloads = MissingPayloadBuilder.generateObjectPayload(
+        correctPayload,
+        schema
+      )
+
+      const invalidTypePayloads = InvalidPayloadBuilder.generateObjectPayload(
+        correctPayload,
+        schema
+      )
+
+      const constraintViolationPayloads =
+        ConstraintViolationPayloadBuilder.generateObjectPayload(
+          correctPayload,
+          schema
+        )
+
+      generatedPayloads = [
+        correctPayload,
+        ...missingPayloads,
+        ...invalidTypePayloads,
+        ...constraintViolationPayloads,
+      ]
+    }
+
+    return generatedPayloads
+  }
+
   private static generatePayloadsForReqBody = (
     methodDetails: any,
     method: string,
@@ -21,14 +91,12 @@ export class PayloadBuilder {
   ): ObjectPayload[] => {
     let generatedPayloads: ObjectPayload[] = []
 
-    if (MethodDetailsHelper.checkIfReqBodySchemaExists(methodDetails as any)) {
+    if (MethodDetailsHelper.checkIfReqBodySchemaExists(methodDetails)) {
       consoleLogger.info(
         `Building request body fuzzing payloads for endpoint [${method}] ${path}`
       )
 
-      const reqBodySchema = MethodDetailsHelper.getReqBodySchema(
-        methodDetails as any
-      )
+      const reqBodySchema = MethodDetailsHelper.getReqBodySchema(methodDetails)
       const correctPayload = CorrectPayloadBuilder.generateObjectPayload(
         reqBodySchema,
         useSpecDef
@@ -90,9 +158,17 @@ export class PayloadBuilder {
             useSpecDef
           )
 
+          // Query
+          const queryPayloads = this.generatePayloadsForQuery(
+            methodDetails,
+            method,
+            path,
+            useSpecDef
+          )
+
           pathPayloads[method] = {
             reqBody: reqBodyPayloads,
-            query: [],
+            query: queryPayloads,
           }
         }
 

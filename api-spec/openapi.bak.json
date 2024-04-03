@@ -27,10 +27,6 @@
   "paths": {
     "/product/{productId}": {
       "get": {
-        "tags": [
-          "Product"
-        ],
-        "summary": "Get a product by Id",
         "parameters": [
           {
             "name": "productId",
@@ -56,133 +52,6 @@
       }
     },
     "/product": {
-      "get": {
-        "tags": [
-          "Product"
-        ],
-        "summary": "Get a list of product",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "nullable": false,
-              "default": 10,
-              "minimum": 0,
-              "maximum": 1000
-            }
-          },
-          {
-            "name": "offset",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "nullable": false,
-              "default": 0,
-              "minimum": 0
-            }
-          },
-          {
-            "name": "name",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "nullable": false,
-              "minLength": 3,
-              "maxLength": 255
-            }
-          },
-          {
-            "name": "regular_price",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "number",
-              "nullable": false,
-              "minimum": 0
-            }
-          },
-          {
-            "name": "quantity",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "nullable": false,
-              "minimum": 0,
-              "maximum": 9999
-            }
-          },
-          {
-            "name": "description",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "nullable": false,
-              "minLength": 3,
-              "maxLength": 1000
-            }
-          },
-          {
-            "name": "weight",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "number",
-              "nullable": false,
-              "minimum": 0,
-              "maximum": 1000
-            }
-          },
-          {
-            "name": "created_at",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "format": "date-time",
-              "nullable": false
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully get product list",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetListOfProductResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad request error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrResponse"
-                }
-              }
-            }
-          }
-        }
-      },
       "put": {
         "tags": [
           "Product"
@@ -1687,20 +1556,6 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ProductShippingResponse"
-            }
-          }
-        }
-      },
-      "GetListOfProductResponse": {
-        "type": "object",
-        "properties": {
-          "count": {
-            "type": "integer"
-          },
-          "rows": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductResponse"
             }
           }
         }
