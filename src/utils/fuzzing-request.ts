@@ -67,12 +67,12 @@ export class FuzzingRequest {
 
       switch (method) {
         case HttpMethods.GET: {
-          await axios.get<any>(url, config)
+          data = await axios.get<any>(url, config)
           break
         }
 
         case HttpMethods.DELETE: {
-          await axios.delete<any>(url, config)
+          data = await axios.delete<any>(url, config)
           break
         }
 

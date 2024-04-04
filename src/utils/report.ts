@@ -26,17 +26,13 @@ export class Report {
     }
 
     if (this.report[path] === undefined) {
-      this.report[path] = {
-        [method]: [newData],
-      }
+      this.report[path] = {}
+    }
+
+    if (this.report[path][method] === undefined) {
+      this.report[path][method] = [newData]
     } else {
-      if (this.report[path][method] === undefined) {
-        this.report[path] = {
-          [method]: [newData],
-        }
-      } else {
-        this.report[path][method] = [...this.report[path][method], newData]
-      }
+      this.report[path][method].push(newData)
     }
   }
 
