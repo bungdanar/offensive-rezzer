@@ -16,11 +16,13 @@ export class Report {
     path,
     method,
     statusCode,
-    payload,
+    reqBody,
+    query,
     response,
   }: AddReportData) => {
     const newData = {
-      payload,
+      reqBody,
+      query,
       statusCode,
       response,
     }
@@ -55,7 +57,8 @@ export class Report {
           const relatedData = payloads
             .filter((p) => p.statusCode === statusCode)
             .map((p) => ({
-              payload: p.payload,
+              reqBody: p.reqBody,
+              query: p.query,
               response: p.response,
             }))
 

@@ -139,18 +139,27 @@ export class FuzzingRequest {
       const r = responses[i]
 
       if (r) {
-        let payload: any
+        let reqBody: any
+        let query: any
+
         try {
-          payload = JSONbig.parse(r.config.data)
+          reqBody = JSONbig.parse(r.config.data)
         } catch (error) {
-          payload = r.config.data
+          reqBody = r.config.data
+        }
+
+        try {
+          query = JSONbig.parse(r.config.params)
+        } catch (error) {
+          query = r.config.params
         }
 
         Report.addReportData({
           path,
           method,
           statusCode: r.status,
-          payload: payload,
+          reqBody: reqBody !== undefined ? reqBody : {},
+          query: query !== undefined ? query : {},
           response: r.data,
         })
       }

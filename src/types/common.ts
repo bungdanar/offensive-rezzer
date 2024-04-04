@@ -31,7 +31,8 @@ export type ReportStruct = {
     // Methods
     [key: string]: {
       statusCode: number
-      payload: any
+      reqBody: any
+      query: any
       response: any
     }[]
   }
@@ -46,7 +47,8 @@ export type PrettyReportStruct = {
       [key: number]: {
         numOfRequest: number
         data: {
-          payload: any
+          reqBody: any
+          query: any
           response: any
         }[]
       }
@@ -58,6 +60,7 @@ export type AddReportData = {
   path: string
   method: string
   statusCode: number
-  payload: any
+  reqBody: any
+  query: any
   response: any
 }
