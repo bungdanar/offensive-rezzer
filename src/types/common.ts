@@ -8,12 +8,21 @@ export type ObjectPayload = {
 
 export type AllPayloads = {
   // Paths
-  [key: string]: {
-    // Methods
-    [key: string]: {
-      [key: string]: any
-    }[]
-  }
+  [key: string]: PathPayloads
+}
+
+export type PathPayloads = {
+  // Methods
+  [key: string]: MethodPayloads
+}
+
+export type MethodPayloads = {
+  reqBody: {
+    [key: string]: any
+  }[]
+  query: {
+    [key: string]: any
+  }[]
 }
 
 export type ReportStruct = {
@@ -22,7 +31,8 @@ export type ReportStruct = {
     // Methods
     [key: string]: {
       statusCode: number
-      payload: any
+      reqBody: any
+      query: any
       response: any
     }[]
   }
@@ -37,7 +47,8 @@ export type PrettyReportStruct = {
       [key: number]: {
         numOfRequest: number
         data: {
-          payload: any
+          reqBody: any
+          query: any
           response: any
         }[]
       }
@@ -49,6 +60,7 @@ export type AddReportData = {
   path: string
   method: string
   statusCode: number
-  payload: any
+  reqBody: any
+  query: any
   response: any
 }

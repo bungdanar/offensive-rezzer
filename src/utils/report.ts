@@ -16,27 +16,25 @@ export class Report {
     path,
     method,
     statusCode,
-    payload,
+    reqBody,
+    query,
     response,
   }: AddReportData) => {
     const newData = {
-      payload,
+      reqBody,
+      query,
       statusCode,
       response,
     }
 
     if (this.report[path] === undefined) {
-      this.report[path] = {
-        [method]: [newData],
-      }
+      this.report[path] = {}
+    }
+
+    if (this.report[path][method] === undefined) {
+      this.report[path][method] = [newData]
     } else {
-      if (this.report[path][method] === undefined) {
-        this.report[path] = {
-          [method]: [newData],
-        }
-      } else {
-        this.report[path][method] = [...this.report[path][method], newData]
-      }
+      this.report[path][method].push(newData)
     }
   }
 
@@ -59,7 +57,8 @@ export class Report {
           const relatedData = payloads
             .filter((p) => p.statusCode === statusCode)
             .map((p) => ({
-              payload: p.payload,
+              reqBody: p.reqBody,
+              query: p.query,
               response: p.response,
             }))
 
