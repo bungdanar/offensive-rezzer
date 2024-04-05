@@ -6,13 +6,9 @@ import { MissingPayloadBuilder } from './missing-payload-builder'
 import { InvalidPayloadBuilder } from './invalid-payload-builder'
 import { ConstraintViolationPayloadBuilder } from './constraint-violation-payload-builder'
 import { consoleLogger } from './logger'
+import { CommonUtils } from './common'
 
 export class PayloadBuilder {
-  private static hasParameter = (path: string): boolean => {
-    const parameterRegex = /\{([^}]+)\}/g
-    return parameterRegex.test(path)
-  }
-
   private static transformParamToObjSchema = (
     params: any[]
   ): { [key: string]: any } => {
@@ -138,7 +134,7 @@ export class PayloadBuilder {
     if (apiSpec.paths) {
       // Iterating paths
       for (const [path, methods] of Object.entries(apiSpec.paths)) {
-        if (this.hasParameter(path)) {
+        if (CommonUtils.hasParameter(path)) {
           consoleLogger.info(
             'Operation for endpoint that contains path paramater is not supported yet'
           )
