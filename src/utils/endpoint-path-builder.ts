@@ -2,6 +2,8 @@ import { OpenAPI } from 'openapi-types'
 import { CommonUtils } from './common'
 import { MethodDetailsHelper } from './check-method-details'
 import { CorrectPayloadBuilder } from './correct-payload-builder'
+import axios, { AxiosResponse } from 'axios'
+import { consoleLogger } from './logger'
 
 class PathComponent {
   private _path: string
@@ -96,8 +98,8 @@ export class EndpointPathBuilder {
       realParentPathStrList[0] = '/'
       metaParentPathStrList[0] = '/'
     } else {
-      for (let j = 0; j < child.selfIdx; j++) {
-        const parent = pathComponents[j]
+      for (let i = 0; i < child.selfIdx; i++) {
+        const parent = pathComponents[i]
         const realParentPath = !parent.isPathParameter
           ? parent.path
           : parent.parameterValue
@@ -143,6 +145,29 @@ export class EndpointPathBuilder {
     return testCreatePayloads
   }
 
+  private static createResourceOperation = async (
+    url: string,
+    payloads: any[]
+  ): Promise<AxiosResponse | null> => {
+    let response: AxiosResponse | null = null
+
+    const config = CommonUtils.generateConfigForReqWithBody()
+
+    for (let i = 0; i < payloads.length; i++) {
+      const payload = payloads[i]
+      const serializedPayload = CommonUtils.serializeBodyPayload(payload)
+
+      try {
+        response = await axios.post<any>(url, serializedPayload, config)
+        break
+      } catch (error) {
+        continue
+      }
+    }
+
+    return response
+  }
+
   public static buildPath = async (
     path: string,
     apiSpec: OpenAPI.Document
@@ -170,7 +195,20 @@ export class EndpointPathBuilder {
         )
 
         // TODO
-        // Sending post
+        // Sending post to create respurce
+        const baseUrl = CommonUtils.getTargetUrl(apiSpec)
+        const responseFromCreateOperation = await this.createResourceOperation(
+          `${baseUrl}${realParentPath}`,
+          testCreatePayloads
+        )
+
+        if (responseFromCreateOperation === null) {
+          consoleLogger.info(
+            `Failed to create resource for endpoint: ${realParentPath}. Continuing operation anyway...`
+          )
+          continue
+        }
+
         // Sending get by Id
         // Save valid Id
       }
