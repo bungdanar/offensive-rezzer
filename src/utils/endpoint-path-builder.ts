@@ -1,4 +1,5 @@
 import { OpenAPI } from 'openapi-types'
+import OpenApiParser from '@readme/openapi-parser'
 import { CommonUtils } from './common'
 import { MethodDetailsHelper } from './check-method-details'
 import { CorrectPayloadBuilder } from './correct-payload-builder'
@@ -50,6 +51,8 @@ class PathComponent {
     this._parameterValue = value
   }
 }
+
+type GetParamIdResult = { param: any } | null
 
 export class EndpointPathBuilder {
   private static composePathComponents = (path: string): PathComponent[] => {
@@ -168,7 +171,52 @@ export class EndpointPathBuilder {
     return response
   }
 
-  public static buildPath = async (
+  private static isObject = (data: unknown) => {
+    return typeof data === 'object' && !Array.isArray(data) && data !== null
+  }
+
+  private static isArrayAndHasElement = (data: unknown) => {
+    return Array.isArray(data) && data.length
+  }
+
+  private static getResourceByPossibleId = async (
+    url: string,
+    id: any
+  ): Promise<GetParamIdResult> => {
+    const config = CommonUtils.generateConfigForReqWithQuery({})
+    try {
+      await axios.get<any>(`${url}/${id}`, config)
+      return { param: id }
+    } catch (error) {
+      return null
+    }
+  }
+
+  private static getOneResourceOperation = async (
+    url: string,
+    data: any
+  ): Promise<GetParamIdResult> => {
+    let resourceId: GetParamIdResult = null
+
+    if (this.isArrayAndHasElement(data)) {
+      resourceId = await this.getOneResourceOperation(url, data[0])
+    } else if (this.isObject(data)) {
+      for (const [, value] of Object.entries(data)) {
+        resourceId = await this.getOneResourceOperation(url, value)
+
+        if (resourceId !== null) {
+          break
+        }
+      }
+    } else {
+      // In this point, data is primitive
+      resourceId = await this.getResourceByPossibleId(url, data)
+    }
+
+    return resourceId
+  }
+
+  public static buildPathWithBruteForce = async (
     path: string,
     apiSpec: OpenAPI.Document
   ): Promise<string> => {
@@ -194,9 +242,14 @@ export class EndpointPathBuilder {
           apiSpec
         )
 
-        // TODO
-        // Sending post to create respurce
         const baseUrl = CommonUtils.getTargetUrl(apiSpec)
+
+        /**
+         * Try to create resource
+         */
+        consoleLogger.info(
+          `Attempting to create resource for endpoint: ${realParentPath}`
+        )
         const responseFromCreateOperation = await this.createResourceOperation(
           `${baseUrl}${realParentPath}`,
           testCreatePayloads
@@ -208,9 +261,35 @@ export class EndpointPathBuilder {
           )
           continue
         }
+        consoleLogger.info(
+          `Creating resource for endpoint: ${realParentPath} is succeeded`
+        )
 
-        // Sending get by Id
+        /**
+         * Try to get a resource
+         */
+        const metaSelfPath = `${realParentPath}/${pc.path}`
+
+        consoleLogger.info(
+          `Attempting to get resource by id from endpoint: ${metaSelfPath}`
+        )
+        const responseFromGetOperation = await this.getOneResourceOperation(
+          `${baseUrl}${realParentPath}`,
+          responseFromCreateOperation.data
+        )
+
+        if (responseFromGetOperation === null) {
+          consoleLogger.info(
+            `Failed to get resource from endpoint: ${metaSelfPath}. Continuing operation anyway...`
+          )
+          continue
+        }
+        consoleLogger.info(
+          `Getting resource from endpoint: ${metaSelfPath} is succeeded`
+        )
+
         // Save valid Id
+        pc.parameterValue = responseFromGetOperation.param
       }
     }
 
@@ -218,4 +297,16 @@ export class EndpointPathBuilder {
   }
 }
 
-// EndpointPathBuilder.buildPath('/parent/{parentId}/children/{childrenId}')
+async function test() {
+  try {
+    const apiSpec = await OpenApiParser.validate('api-spec/openapi.json')
+    await EndpointPathBuilder.buildPathWithBruteForce(
+      '/product/{productId}',
+      apiSpec
+    )
+  } catch (error) {
+    consoleLogger.info('Test error')
+  }
+}
+
+test()
