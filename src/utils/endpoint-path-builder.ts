@@ -85,6 +85,64 @@ export class EndpointPathBuilder {
     return pathComponents
   }
 
+  private static getParentPath = (
+    child: PathComponent,
+    pathComponents: PathComponent[]
+  ): { realParentPath: string; metaParentPath: string } => {
+    const realParentPathStrList: string[] = ['']
+    const metaParentPathStrList: string[] = ['']
+
+    if (child.parentIdx === null) {
+      realParentPathStrList[0] = '/'
+      metaParentPathStrList[0] = '/'
+    } else {
+      for (let j = 0; j < child.selfIdx; j++) {
+        const parent = pathComponents[j]
+        const realParentPath = !parent.isPathParameter
+          ? parent.path
+          : parent.parameterValue
+
+        realParentPathStrList.push(realParentPath)
+        metaParentPathStrList.push(parent.path)
+      }
+    }
+
+    const realParentPath = realParentPathStrList.join('/')
+    const metaParentPath = metaParentPathStrList.join('/')
+
+    return { realParentPath, metaParentPath }
+  }
+
+  private static generateTestPaylaods = (
+    metaParentPath: string,
+    apiSpec: OpenAPI.Document
+  ): any[] => {
+    const testCreatePayloads: any[] = []
+    if (
+      apiSpec.paths !== undefined &&
+      apiSpec.paths[metaParentPath] !== undefined &&
+      apiSpec.paths[metaParentPath]!['post'] !== undefined &&
+      MethodDetailsHelper.checkIfReqBodySchemaExists(
+        apiSpec.paths[metaParentPath]!['post']!
+      )
+    ) {
+      const reqBodySchema = MethodDetailsHelper.getReqBodySchema(
+        apiSpec.paths[metaParentPath]!['post']!
+      )
+
+      testCreatePayloads.push(
+        CorrectPayloadBuilder.generateObjectPayload(reqBodySchema, false)
+      )
+      testCreatePayloads.push(
+        CorrectPayloadBuilder.generateObjectPayload(reqBodySchema, true)
+      )
+    } else {
+      testCreatePayloads.push({})
+    }
+
+    return testCreatePayloads
+  }
+
   public static buildPath = async (
     path: string,
     apiSpec: OpenAPI.Document
@@ -95,55 +153,21 @@ export class EndpointPathBuilder {
 
     if (pathComponents.length > 0) {
       for (let i = 0; i < pathComponents.length; i++) {
-        const ec = pathComponents[i]
+        const pc = pathComponents[i]
 
-        if (!ec.isPathParameter) {
+        if (!pc.isPathParameter) {
           continue
         }
 
-        const realParentPathStrList: string[] = ['']
-        const metaParentPathStrList: string[] = ['']
+        const { realParentPath, metaParentPath } = this.getParentPath(
+          pc,
+          pathComponents
+        )
 
-        if (ec.parentIdx === null) {
-          realParentPathStrList[0] = '/'
-          metaParentPathStrList[0] = '/'
-        } else {
-          for (let j = 0; j < ec.selfIdx; j++) {
-            const parent = pathComponents[j]
-            const realParentPath = !parent.isPathParameter
-              ? parent.path
-              : parent.parameterValue
-
-            realParentPathStrList.push(realParentPath)
-            metaParentPathStrList.push(parent.path)
-          }
-        }
-
-        const realParentPath = realParentPathStrList.join('/')
-        const metaParentPath = metaParentPathStrList.join('/')
-
-        let testCreatePayload: any[] = []
-        if (
-          apiSpec.paths !== undefined &&
-          apiSpec.paths[metaParentPath] !== undefined &&
-          apiSpec.paths[metaParentPath]!['post'] !== undefined &&
-          MethodDetailsHelper.checkIfReqBodySchemaExists(
-            apiSpec.paths[metaParentPath]!['post']!
-          )
-        ) {
-          const reqBodySchema = MethodDetailsHelper.getReqBodySchema(
-            apiSpec.paths[metaParentPath]!['post']!
-          )
-
-          testCreatePayload.push(
-            CorrectPayloadBuilder.generateObjectPayload(reqBodySchema, false)
-          )
-          testCreatePayload.push(
-            CorrectPayloadBuilder.generateObjectPayload(reqBodySchema, true)
-          )
-        } else {
-          testCreatePayload.push({})
-        }
+        const testCreatePayloads = this.generateTestPaylaods(
+          metaParentPath,
+          apiSpec
+        )
 
         // TODO
         // Sending post

@@ -4,9 +4,9 @@ import { AllPayloads } from '../types/common'
 import JSONbig from 'json-bigint'
 import { consoleLogger, errorLogger } from './logger'
 import { Report } from './report'
-import { Environment } from './environment'
 import { HttpMethods } from '../enums/http-methods'
 import qs from 'qs'
+import { CommonUtils } from './common'
 
 export class FuzzingRequest {
   // This is based on common implementation
@@ -20,13 +20,6 @@ export class FuzzingRequest {
     HttpMethods.GET,
     HttpMethods.DELETE,
   ]
-
-  private static getTargetUrl = (apiSpec: OpenAPI.Document): string => {
-    return Environment.targetUrl !== undefined
-      ? Environment.targetUrl
-      : //@ts-ignore
-        (apiSpec.servers[0].url as string)
-  }
 
   private static handleReqError = (
     url: string,
@@ -170,7 +163,7 @@ export class FuzzingRequest {
     apiSpec: OpenAPI.Document,
     allPayloads: AllPayloads
   ) => {
-    const targetUrl = this.getTargetUrl(apiSpec)
+    const targetUrl = CommonUtils.getTargetUrl(apiSpec)
 
     for (const [path, methods] of Object.entries(allPayloads)) {
       for (const [method, payloads] of Object.entries(methods)) {
