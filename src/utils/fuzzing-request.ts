@@ -165,7 +165,7 @@ export class FuzzingRequest {
               payloads.reqBody.map((reqBody) =>
                 this.handleReqWithBody(
                   normalizedMethod,
-                  `${targetUrl}${path}`,
+                  `${targetUrl}${payloads.realPath}`,
                   reqBody
                 )
               )
@@ -174,7 +174,7 @@ export class FuzzingRequest {
             responses = await Promise.all([
               this.handleReqWithBody(
                 normalizedMethod,
-                `${targetUrl}${path}`,
+                `${targetUrl}${payloads.realPath}`,
                 {}
               ),
             ])
@@ -185,7 +185,7 @@ export class FuzzingRequest {
               payloads.query.map((query) =>
                 this.handleReqWithQuery(
                   normalizedMethod,
-                  `${targetUrl}${path}`,
+                  `${targetUrl}${payloads.realPath}`,
                   query
                 )
               )
@@ -194,7 +194,7 @@ export class FuzzingRequest {
             responses = await Promise.all([
               this.handleReqWithQuery(
                 normalizedMethod,
-                `${targetUrl}${path}`,
+                `${targetUrl}${payloads.realPath}`,
                 {}
               ),
             ])
