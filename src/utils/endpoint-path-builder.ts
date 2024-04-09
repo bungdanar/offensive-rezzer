@@ -1,5 +1,5 @@
 import { OpenAPI } from 'openapi-types'
-import OpenApiParser from '@readme/openapi-parser'
+// import OpenApiParser from '@readme/openapi-parser'
 import { CommonUtils } from './common'
 import { MethodDetailsHelper } from './check-method-details'
 import { CorrectPayloadBuilder } from './correct-payload-builder'
@@ -11,19 +11,12 @@ class PathComponent {
   private _isPathParameter: boolean
   private _selfIdx: number
   private _parentIdx: number | null
-  private _childIdx: number | null
   private _parameterValue: any | null = null
 
-  constructor(
-    path: string,
-    selfIdx: number,
-    parentIdx: number | null,
-    childIdx: number | null
-  ) {
+  constructor(path: string, selfIdx: number, parentIdx: number | null) {
     this._path = path
     this._selfIdx = selfIdx
     this._parentIdx = parentIdx
-    this._childIdx = childIdx
     this._isPathParameter = CommonUtils.hasParameter(path)
   }
 
@@ -65,24 +58,24 @@ export class EndpointPathBuilder {
 
     if (pathStrList.length > 0) {
       if (pathStrList.length === 1) {
-        pathComponents.push(new PathComponent(pathStrList[0], 0, null, null))
+        pathComponents.push(new PathComponent(pathStrList[0], 0, null))
       } else {
         for (let i = 0; i < pathStrList.length; i++) {
           const str = pathStrList[i]
 
           // First str
           if (i === 0) {
-            pathComponents.push(new PathComponent(str, i, null, i + 1))
+            pathComponents.push(new PathComponent(str, i, null))
             continue
           }
 
           // Last str
           if (i === pathStrList.length - 1) {
-            pathComponents.push(new PathComponent(str, i, i - 1, null))
+            pathComponents.push(new PathComponent(str, i, i - 1))
             continue
           }
 
-          pathComponents.push(new PathComponent(str, i, i - 1, i + 1))
+          pathComponents.push(new PathComponent(str, i, i - 1))
         }
       }
     }
@@ -293,20 +286,30 @@ export class EndpointPathBuilder {
       }
     }
 
-    return path
+    const realSelfPathStrList = pathComponents.map((pc) => {
+      if (!pc.isPathParameter) return pc.path
+
+      if (pc.isPathParameter && pc.parameterValue !== null)
+        return pc.parameterValue
+
+      return JSON.stringify(pc.parameterValue)
+    })
+    realSelfPathStrList.unshift('')
+
+    return realSelfPathStrList.join('/')
   }
 }
 
-async function test() {
-  try {
-    const apiSpec = await OpenApiParser.validate('api-spec/openapi.json')
-    await EndpointPathBuilder.buildPathWithBruteForce(
-      '/product/{productId}',
-      apiSpec
-    )
-  } catch (error) {
-    consoleLogger.info('Test error')
-  }
-}
+// async function test() {
+//   try {
+//     const apiSpec = await OpenApiParser.validate('api-spec/openapi.json')
+//     await EndpointPathBuilder.buildPathWithBruteForce(
+//       '/product/{productId}/shipping/{shippingId}',
+//       apiSpec
+//     )
+//   } catch (error) {
+//     consoleLogger.info('Test error')
+//   }
+// }
 
-test()
+// test()
