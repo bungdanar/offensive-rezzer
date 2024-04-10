@@ -16,7 +16,10 @@ export const app = async () => {
       consoleLogger.info(`Fuzzing iteration ${i}`)
 
       const isOdd = i % 2 !== 0
-      const allPayloads = PayloadBuilder.buildFuzzingPayloads(apiSpec, isOdd)
+      const allPayloads = await PayloadBuilder.buildFuzzingPayloads(
+        apiSpec,
+        isOdd
+      )
       await FuzzingRequest.sendPayloads(apiSpec, allPayloads)
     }
     consoleLogger.info('Sending fuzzing payloads to all endpoints is completed')

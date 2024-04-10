@@ -1,12 +1,11 @@
 import { OpenAPI } from 'openapi-types'
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
+import axios, { AxiosError, AxiosResponse } from 'axios'
 import { AllPayloads } from '../types/common'
 import JSONbig from 'json-bigint'
 import { consoleLogger, errorLogger } from './logger'
 import { Report } from './report'
-import { Environment } from './environment'
 import { HttpMethods } from '../enums/http-methods'
-import qs from 'qs'
+import { CommonUtils } from './common'
 
 export class FuzzingRequest {
   // This is based on common implementation
@@ -20,13 +19,6 @@ export class FuzzingRequest {
     HttpMethods.GET,
     HttpMethods.DELETE,
   ]
-
-  private static getTargetUrl = (apiSpec: OpenAPI.Document): string => {
-    return Environment.targetUrl !== undefined
-      ? Environment.targetUrl
-      : //@ts-ignore
-        (apiSpec.servers[0].url as string)
-  }
 
   private static handleReqError = (
     url: string,
@@ -56,14 +48,7 @@ export class FuzzingRequest {
     let data: AxiosResponse | null = null
 
     try {
-      const config: AxiosRequestConfig<any> | undefined = {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        params: queryParam,
-        paramsSerializer: (params) =>
-          qs.stringify(params, { arrayFormat: 'repeat' }),
-      }
+      const config = CommonUtils.generateConfigForReqWithQuery(queryParam)
 
       switch (method) {
         case HttpMethods.GET: {
@@ -94,29 +79,22 @@ export class FuzzingRequest {
     let data: AxiosResponse | null = null
 
     try {
-      const serializedPayloads = JSON.stringify(payload, (key, value) =>
-        typeof value === 'bigint' ? JSONbig.stringify(value) : value
-      )
-
-      const config: AxiosRequestConfig<any> | undefined = {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
+      const serializedPayload = CommonUtils.serializeBodyPayload(payload)
+      const config = CommonUtils.generateConfigForReqWithBody()
 
       switch (method) {
         case HttpMethods.POST: {
-          data = await axios.post<any>(url, serializedPayloads, config)
+          data = await axios.post<any>(url, serializedPayload, config)
           break
         }
 
         case HttpMethods.PATCH: {
-          data = await axios.patch<any>(url, serializedPayloads, config)
+          data = await axios.patch<any>(url, serializedPayload, config)
           break
         }
 
         case HttpMethods.PUT: {
-          data = await axios.put<any>(url, serializedPayloads, config)
+          data = await axios.put<any>(url, serializedPayload, config)
           break
         }
 
@@ -170,7 +148,7 @@ export class FuzzingRequest {
     apiSpec: OpenAPI.Document,
     allPayloads: AllPayloads
   ) => {
-    const targetUrl = this.getTargetUrl(apiSpec)
+    const targetUrl = CommonUtils.getTargetUrl(apiSpec)
 
     for (const [path, methods] of Object.entries(allPayloads)) {
       for (const [method, payloads] of Object.entries(methods)) {
@@ -187,7 +165,7 @@ export class FuzzingRequest {
               payloads.reqBody.map((reqBody) =>
                 this.handleReqWithBody(
                   normalizedMethod,
-                  `${targetUrl}${path}`,
+                  `${targetUrl}${payloads.realPath}`,
                   reqBody
                 )
               )
@@ -196,7 +174,7 @@ export class FuzzingRequest {
             responses = await Promise.all([
               this.handleReqWithBody(
                 normalizedMethod,
-                `${targetUrl}${path}`,
+                `${targetUrl}${payloads.realPath}`,
                 {}
               ),
             ])
@@ -207,7 +185,7 @@ export class FuzzingRequest {
               payloads.query.map((query) =>
                 this.handleReqWithQuery(
                   normalizedMethod,
-                  `${targetUrl}${path}`,
+                  `${targetUrl}${payloads.realPath}`,
                   query
                 )
               )
@@ -216,7 +194,7 @@ export class FuzzingRequest {
             responses = await Promise.all([
               this.handleReqWithQuery(
                 normalizedMethod,
-                `${targetUrl}${path}`,
+                `${targetUrl}${payloads.realPath}`,
                 {}
               ),
             ])

@@ -6,13 +6,10 @@ import { MissingPayloadBuilder } from './missing-payload-builder'
 import { InvalidPayloadBuilder } from './invalid-payload-builder'
 import { ConstraintViolationPayloadBuilder } from './constraint-violation-payload-builder'
 import { consoleLogger } from './logger'
+import { CommonUtils } from './common'
+import { EndpointPathBuilder } from './endpoint-path-builder'
 
 export class PayloadBuilder {
-  private static hasParameter = (path: string): boolean => {
-    const parameterRegex = /\{([^}]+)\}/g
-    return parameterRegex.test(path)
-  }
-
   private static transformParamToObjSchema = (
     params: any[]
   ): { [key: string]: any } => {
@@ -129,21 +126,26 @@ export class PayloadBuilder {
     return generatedPayloads
   }
 
-  public static buildFuzzingPayloads = (
+  public static buildFuzzingPayloads = async (
     apiSpec: OpenAPI.Document,
     useSpecDef: boolean
-  ): AllPayloads => {
+  ): Promise<AllPayloads> => {
     const allPayloads: AllPayloads = {}
 
     if (apiSpec.paths) {
       // Iterating paths
       for (const [path, methods] of Object.entries(apiSpec.paths)) {
-        if (this.hasParameter(path)) {
-          consoleLogger.info(
-            'Operation for endpoint that contains path paramater is not supported yet'
+        let realPath: string = path
+        if (CommonUtils.hasParameter(path)) {
+          realPath = await EndpointPathBuilder.buildPathWithBruteForce(
+            path,
+            apiSpec
           )
-          consoleLogger.info(`Not supported endpoint: ${path}`)
-          continue
+          // consoleLogger.info(
+          //   'Operation for endpoint that contains path paramater is not supported yet'
+          // )
+          // consoleLogger.info(`Not supported endpoint: ${path}`)
+          // continue
         }
 
         const pathPayloads: PathPayloads = {}
@@ -169,6 +171,7 @@ export class PayloadBuilder {
           pathPayloads[method] = {
             reqBody: reqBodyPayloads,
             query: queryPayloads,
+            realPath,
           }
         }
 
