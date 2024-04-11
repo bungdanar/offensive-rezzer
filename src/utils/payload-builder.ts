@@ -126,6 +126,65 @@ export class PayloadBuilder {
     return generatedPayloads
   }
 
+  private static generatePayloadsForPathParamater = (
+    methodDetails: any,
+    method: string,
+    path: string,
+    useSpecDef: boolean
+  ): string[] => {
+    let generatedPayloads: ObjectPayload[] = []
+    let generatedPaths: string[] = []
+
+    if (
+      CommonUtils.hasParameter(path) &&
+      MethodDetailsHelper.checkIfParametersExists(methodDetails)
+    ) {
+      consoleLogger.info(
+        `Building path parameter fuzzing payloads for endpoint [${method}] ${path}`
+      )
+
+      const paramaters = MethodDetailsHelper.getParameters(methodDetails)
+      const pathParams = paramaters.filter((p: any) => p.in === 'path')
+      const schema = this.transformParamToObjSchema(pathParams)
+
+      const correctPayload = CorrectPayloadBuilder.generateObjectPayload(
+        schema,
+        useSpecDef
+      )
+
+      const invalidTypePayloads = InvalidPayloadBuilder.generateObjectPayload(
+        correctPayload,
+        schema
+      )
+
+      const constraintViolationPayloads =
+        ConstraintViolationPayloadBuilder.generateObjectPayload(
+          correctPayload,
+          schema
+        )
+
+      generatedPayloads = [
+        correctPayload,
+        ...invalidTypePayloads,
+        ...constraintViolationPayloads,
+      ]
+    }
+
+    if (generatedPayloads.length) {
+      for (let i = 0; i < generatedPayloads.length; i++) {
+        const gp = generatedPayloads[i]
+
+        let generatedPath = path
+        for (const [key, value] of Object.entries(gp)) {
+          generatedPath = generatedPath.replace(`{${key}}`, value)
+        }
+        generatedPaths.push(generatedPath)
+      }
+    }
+
+    return generatedPaths
+  }
+
   public static buildFuzzingPayloads = async (
     apiSpec: OpenAPI.Document,
     useSpecDef: boolean
@@ -136,22 +195,25 @@ export class PayloadBuilder {
       // Iterating paths
       for (const [path, methods] of Object.entries(apiSpec.paths)) {
         let realPath: string = path
-        if (CommonUtils.hasParameter(path)) {
-          realPath = await EndpointPathBuilder.buildPathWithBruteForce(
-            path,
-            apiSpec
-          )
-          // consoleLogger.info(
-          //   'Operation for endpoint that contains path paramater is not supported yet'
-          // )
-          // consoleLogger.info(`Not supported endpoint: ${path}`)
-          // continue
-        }
+        // if (CommonUtils.hasParameter(path)) {
+        //   realPath = await EndpointPathBuilder.buildPathWithBruteForce(
+        //     path,
+        //     apiSpec
+        //   )
+        // }
 
         const pathPayloads: PathPayloads = {}
 
         // Iterating methods
         for (const [method, methodDetails] of Object.entries(methods)) {
+          // Path Params
+          const pathParamsPayloads = this.generatePayloadsForPathParamater(
+            methodDetails,
+            method,
+            path,
+            useSpecDef
+          )
+
           // Request Body
           const reqBodyPayloads = this.generatePayloadsForReqBody(
             methodDetails,
