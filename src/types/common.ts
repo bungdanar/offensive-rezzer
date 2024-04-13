@@ -23,7 +23,7 @@ export type MethodPayloads = {
   query: {
     [key: string]: any
   }[]
-  realPath: string
+  realPaths: string[]
 }
 
 export type ReportStruct = {

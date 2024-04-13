@@ -159,45 +159,49 @@ export class FuzzingRequest {
         const normalizedMethod = method.toLowerCase()
         let responses: (AxiosResponse<any, any> | null)[] = []
 
-        if (this.ALLOWED_METHOD_WITH_REQBODY.includes(normalizedMethod)) {
-          if (payloads.reqBody.length > 0) {
-            responses = await Promise.all(
-              payloads.reqBody.map((reqBody) =>
+        for (let i = 0; i < payloads.realPaths.length; i++) {
+          const realPath = payloads.realPaths[i]
+
+          if (this.ALLOWED_METHOD_WITH_REQBODY.includes(normalizedMethod)) {
+            if (payloads.reqBody.length > 0) {
+              responses = await Promise.all(
+                payloads.reqBody.map((reqBody) =>
+                  this.handleReqWithBody(
+                    normalizedMethod,
+                    `${targetUrl}${realPath}`,
+                    reqBody
+                  )
+                )
+              )
+            } else {
+              responses = await Promise.all([
                 this.handleReqWithBody(
                   normalizedMethod,
-                  `${targetUrl}${payloads.realPath}`,
-                  reqBody
+                  `${targetUrl}${realPath}`,
+                  {}
+                ),
+              ])
+            }
+          } else {
+            if (payloads.query.length > 0) {
+              responses = await Promise.all(
+                payloads.query.map((query) =>
+                  this.handleReqWithQuery(
+                    normalizedMethod,
+                    `${targetUrl}${realPath}`,
+                    query
+                  )
                 )
               )
-            )
-          } else {
-            responses = await Promise.all([
-              this.handleReqWithBody(
-                normalizedMethod,
-                `${targetUrl}${payloads.realPath}`,
-                {}
-              ),
-            ])
-          }
-        } else {
-          if (payloads.query.length > 0) {
-            responses = await Promise.all(
-              payloads.query.map((query) =>
+            } else {
+              responses = await Promise.all([
                 this.handleReqWithQuery(
                   normalizedMethod,
-                  `${targetUrl}${payloads.realPath}`,
-                  query
-                )
-              )
-            )
-          } else {
-            responses = await Promise.all([
-              this.handleReqWithQuery(
-                normalizedMethod,
-                `${targetUrl}${payloads.realPath}`,
-                {}
-              ),
-            ])
+                  `${targetUrl}${realPath}`,
+                  {}
+                ),
+              ])
+            }
           }
         }
 

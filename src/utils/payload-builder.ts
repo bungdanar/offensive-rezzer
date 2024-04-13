@@ -8,6 +8,7 @@ import { ConstraintViolationPayloadBuilder } from './constraint-violation-payloa
 import { consoleLogger } from './logger'
 import { CommonUtils } from './common'
 import { EndpointPathBuilder } from './endpoint-path-builder'
+import { RandomPayloadBuilder } from './random-payload-builder'
 
 export class PayloadBuilder {
   private static transformParamToObjSchema = (
@@ -163,10 +164,16 @@ export class PayloadBuilder {
           schema
         )
 
+      const randomPayloads = RandomPayloadBuilder.generateObjectPayload(
+        correctPayload,
+        schema
+      )
+
       generatedPayloads = [
         correctPayload,
         ...invalidTypePayloads,
         ...constraintViolationPayloads,
+        ...randomPayloads,
       ]
     }
 
@@ -194,25 +201,34 @@ export class PayloadBuilder {
     if (apiSpec.paths) {
       // Iterating paths
       for (const [path, methods] of Object.entries(apiSpec.paths)) {
-        let realPath: string = path
-        // if (CommonUtils.hasParameter(path)) {
-        //   realPath = await EndpointPathBuilder.buildPathWithBruteForce(
-        //     path,
-        //     apiSpec
-        //   )
-        // }
+        let realPaths: Set<string> = new Set()
+
+        if (CommonUtils.hasParameter(path)) {
+          const validRealPath =
+            await EndpointPathBuilder.buildValidPathWithBruteForce(
+              path,
+              apiSpec
+            )
+          realPaths.add(validRealPath)
+        } else {
+          realPaths.add(path)
+        }
 
         const pathPayloads: PathPayloads = {}
 
         // Iterating methods
         for (const [method, methodDetails] of Object.entries(methods)) {
           // Path Params
-          const pathParamsPayloads = this.generatePayloadsForPathParamater(
-            methodDetails,
-            method,
-            path,
-            useSpecDef
-          )
+          if (CommonUtils.hasParameter(path)) {
+            const pathParamsPayloads = this.generatePayloadsForPathParamater(
+              methodDetails,
+              method,
+              path,
+              useSpecDef
+            )
+
+            pathParamsPayloads.forEach((p) => realPaths.add(p))
+          }
 
           // Request Body
           const reqBodyPayloads = this.generatePayloadsForReqBody(
@@ -233,7 +249,7 @@ export class PayloadBuilder {
           pathPayloads[method] = {
             reqBody: reqBodyPayloads,
             query: queryPayloads,
-            realPath,
+            realPaths: Array.from(realPaths),
           }
         }
 
