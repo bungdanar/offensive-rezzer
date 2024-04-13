@@ -109,6 +109,7 @@ export class FuzzingRequest {
   }
 
   private static addResponseDataToReport = (
+    targetUrl: string,
     path: string,
     method: string,
     responses: (AxiosResponse<any, any> | null)[]
@@ -122,7 +123,10 @@ export class FuzzingRequest {
         let query: any
 
         if (r.config.url) {
-          pathParams = CommonUtils.extractPathParams(path, r.config.url)
+          pathParams = CommonUtils.extractPathParams(
+            path,
+            r.config.url.split(targetUrl)[1]
+          )
         }
 
         try {
@@ -211,7 +215,7 @@ export class FuzzingRequest {
           }
         }
 
-        this.addResponseDataToReport(path, method, responses)
+        this.addResponseDataToReport(targetUrl, path, method, responses)
       }
     }
   }
