@@ -109,6 +109,7 @@ export class FuzzingRequest {
   }
 
   private static addResponseDataToReport = (
+    targetUrl: string,
     path: string,
     method: string,
     responses: (AxiosResponse<any, any> | null)[]
@@ -117,8 +118,16 @@ export class FuzzingRequest {
       const r = responses[i]
 
       if (r) {
+        let pathParams: any = {}
         let reqBody: any
         let query: any
+
+        if (r.config.url) {
+          pathParams = CommonUtils.extractPathParams(
+            path,
+            r.config.url.split(targetUrl)[1]
+          )
+        }
 
         try {
           reqBody = JSONbig.parse(r.config.data)
@@ -139,6 +148,7 @@ export class FuzzingRequest {
           reqBody: reqBody !== undefined ? reqBody : {},
           query: query !== undefined ? query : {},
           response: r.data,
+          pathParams,
         })
       }
     }
@@ -159,49 +169,53 @@ export class FuzzingRequest {
         const normalizedMethod = method.toLowerCase()
         let responses: (AxiosResponse<any, any> | null)[] = []
 
-        if (this.ALLOWED_METHOD_WITH_REQBODY.includes(normalizedMethod)) {
-          if (payloads.reqBody.length > 0) {
-            responses = await Promise.all(
-              payloads.reqBody.map((reqBody) =>
+        for (let i = 0; i < payloads.realPaths.length; i++) {
+          const realPath = payloads.realPaths[i]
+
+          if (this.ALLOWED_METHOD_WITH_REQBODY.includes(normalizedMethod)) {
+            if (payloads.reqBody.length > 0) {
+              responses = await Promise.all(
+                payloads.reqBody.map((reqBody) =>
+                  this.handleReqWithBody(
+                    normalizedMethod,
+                    `${targetUrl}${realPath}`,
+                    reqBody
+                  )
+                )
+              )
+            } else {
+              responses = await Promise.all([
                 this.handleReqWithBody(
                   normalizedMethod,
-                  `${targetUrl}${payloads.realPath}`,
-                  reqBody
+                  `${targetUrl}${realPath}`,
+                  {}
+                ),
+              ])
+            }
+          } else {
+            if (payloads.query.length > 0) {
+              responses = await Promise.all(
+                payloads.query.map((query) =>
+                  this.handleReqWithQuery(
+                    normalizedMethod,
+                    `${targetUrl}${realPath}`,
+                    query
+                  )
                 )
               )
-            )
-          } else {
-            responses = await Promise.all([
-              this.handleReqWithBody(
-                normalizedMethod,
-                `${targetUrl}${payloads.realPath}`,
-                {}
-              ),
-            ])
-          }
-        } else {
-          if (payloads.query.length > 0) {
-            responses = await Promise.all(
-              payloads.query.map((query) =>
+            } else {
+              responses = await Promise.all([
                 this.handleReqWithQuery(
                   normalizedMethod,
-                  `${targetUrl}${payloads.realPath}`,
-                  query
-                )
-              )
-            )
-          } else {
-            responses = await Promise.all([
-              this.handleReqWithQuery(
-                normalizedMethod,
-                `${targetUrl}${payloads.realPath}`,
-                {}
-              ),
-            ])
+                  `${targetUrl}${realPath}`,
+                  {}
+                ),
+              ])
+            }
           }
         }
 
-        this.addResponseDataToReport(path, method, responses)
+        this.addResponseDataToReport(targetUrl, path, method, responses)
       }
     }
   }

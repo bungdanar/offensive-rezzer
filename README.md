@@ -19,12 +19,12 @@ If you need a mature fuzzing tool, you can try several other fuzzing tools such 
 ## Current Features
 
 - Perform fuzzing scenarios using the GET, POST, PUT, PATCH, and DELETE methods.
-- Generate fuzzing payloads (missing required, invalid type, and constraint violation) for the `request body` and the `query parameters`.
+- Generate fuzzing payloads (missing required, invalid type, and constraint violation) for the `request body`, `query parameters` and `path parameters`.
 
 ## Todo (in order of priority)
 - [x] Supports fuzzing scenarios for endpoints **that contain** path parameters.
 - [x] Supports fuzzing scenarios for endpoint inter-dependencies. For example, to perform effective fuzzing on endpoints that require path parameters, such as endpoints to update individual resources, OffensiveRezzer will try to create a new resource first and then perform fuzzing based on the identifier obtained from the new resource.
-- [ ] Supports creating fuzzing payloads for path parameters.
+- [x] Supports creating fuzzing payloads for path parameters.
 - [ ] Supports authentication in fuzzing scenarios, both in headers and cookies.
 - [ ] Supports fuzzing scenarios using payload examples in the specification.
 - [ ] Supports automatic creation of unit test scripts based on fuzzing results so that fuzzing scenarios can be replicated or replayed. The resulting unit tests will then be written in various formats that can be selected, such as JUnit (Java), Jest (JavaScript), and XUnit (C#).

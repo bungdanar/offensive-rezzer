@@ -209,7 +209,7 @@ export class EndpointPathBuilder {
     return resourceId
   }
 
-  public static buildPathWithBruteForce = async (
+  public static buildValidPathWithBruteForce = async (
     path: string,
     apiSpec: OpenAPI.Document
   ): Promise<string> => {

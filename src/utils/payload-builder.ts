@@ -8,6 +8,7 @@ import { ConstraintViolationPayloadBuilder } from './constraint-violation-payloa
 import { consoleLogger } from './logger'
 import { CommonUtils } from './common'
 import { EndpointPathBuilder } from './endpoint-path-builder'
+import { RandomPayloadBuilder } from './random-payload-builder'
 
 export class PayloadBuilder {
   private static transformParamToObjSchema = (
@@ -126,6 +127,71 @@ export class PayloadBuilder {
     return generatedPayloads
   }
 
+  private static generatePayloadsForPathParamater = (
+    methodDetails: any,
+    method: string,
+    path: string,
+    useSpecDef: boolean
+  ): string[] => {
+    let generatedPayloads: ObjectPayload[] = []
+    let generatedPaths: string[] = []
+
+    if (
+      CommonUtils.hasParameter(path) &&
+      MethodDetailsHelper.checkIfParametersExists(methodDetails)
+    ) {
+      consoleLogger.info(
+        `Building path parameter fuzzing payloads for endpoint [${method}] ${path}`
+      )
+
+      const paramaters = MethodDetailsHelper.getParameters(methodDetails)
+      const pathParams = paramaters.filter((p: any) => p.in === 'path')
+      const schema = this.transformParamToObjSchema(pathParams)
+
+      const correctPayload = CorrectPayloadBuilder.generateObjectPayload(
+        schema,
+        useSpecDef
+      )
+
+      const invalidTypePayloads = InvalidPayloadBuilder.generateObjectPayload(
+        correctPayload,
+        schema
+      )
+
+      const constraintViolationPayloads =
+        ConstraintViolationPayloadBuilder.generateObjectPayload(
+          correctPayload,
+          schema
+        )
+
+      const randomPayloads = RandomPayloadBuilder.generateObjectPayload(
+        correctPayload,
+        schema
+      )
+
+      generatedPayloads = [
+        correctPayload,
+        ...invalidTypePayloads,
+        ...constraintViolationPayloads,
+        ...randomPayloads,
+      ]
+    }
+
+    if (generatedPayloads.length) {
+      for (let i = 0; i < generatedPayloads.length; i++) {
+        const gp = generatedPayloads[i]
+
+        let generatedPath = path
+        for (const [key, value] of Object.entries(gp)) {
+          generatedPath = generatedPath.replace(`{${key}}`, value)
+        }
+        generatedPaths.push(generatedPath)
+      }
+    }
+
+    return generatedPaths
+  }
+
   public static buildFuzzingPayloads = async (
     apiSpec: OpenAPI.Document,
     useSpecDef: boolean
@@ -135,23 +201,35 @@ export class PayloadBuilder {
     if (apiSpec.paths) {
       // Iterating paths
       for (const [path, methods] of Object.entries(apiSpec.paths)) {
-        let realPath: string = path
+        let realPaths: Set<string> = new Set()
+
         if (CommonUtils.hasParameter(path)) {
-          realPath = await EndpointPathBuilder.buildPathWithBruteForce(
-            path,
-            apiSpec
-          )
-          // consoleLogger.info(
-          //   'Operation for endpoint that contains path paramater is not supported yet'
-          // )
-          // consoleLogger.info(`Not supported endpoint: ${path}`)
-          // continue
+          const validRealPath =
+            await EndpointPathBuilder.buildValidPathWithBruteForce(
+              path,
+              apiSpec
+            )
+          realPaths.add(validRealPath)
+        } else {
+          realPaths.add(path)
         }
 
         const pathPayloads: PathPayloads = {}
 
         // Iterating methods
         for (const [method, methodDetails] of Object.entries(methods)) {
+          // Path Params
+          if (CommonUtils.hasParameter(path)) {
+            const pathParamsPayloads = this.generatePayloadsForPathParamater(
+              methodDetails,
+              method,
+              path,
+              useSpecDef
+            )
+
+            pathParamsPayloads.forEach((p) => realPaths.add(p))
+          }
+
           // Request Body
           const reqBodyPayloads = this.generatePayloadsForReqBody(
             methodDetails,
@@ -171,7 +249,7 @@ export class PayloadBuilder {
           pathPayloads[method] = {
             reqBody: reqBodyPayloads,
             query: queryPayloads,
-            realPath,
+            realPaths: Array.from(realPaths),
           }
         }
 
