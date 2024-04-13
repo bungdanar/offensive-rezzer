@@ -1,8 +1,14 @@
+import crypto from 'crypto'
+
 import { SchemaDataTypes } from '../enums/openapi-data-types'
 import { InputSpec, ObjectPayload } from '../types/common'
 
 export class RandomPayloadBuilder {
-  private static generateRandomValues = (): any[] => [null, undefined]
+  public static generateRandomValues = (): any[] => [
+    null,
+    undefined,
+    crypto.randomUUID(),
+  ]
 
   private static generateObjectPayloadVariants = (
     prop: string,

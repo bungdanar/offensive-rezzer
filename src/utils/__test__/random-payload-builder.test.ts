@@ -1,5 +1,14 @@
+import crypto from 'crypto'
+
 import { InputSpec, ObjectPayload } from '../../types/common'
 import { RandomPayloadBuilder } from '../random-payload-builder'
+
+const uuid = crypto.randomUUID()
+RandomPayloadBuilder.generateRandomValues = jest.fn(() => [
+  null,
+  undefined,
+  uuid,
+])
 
 it('returns random payload variants for simple object', () => {
   const objectSchema: InputSpec = {
@@ -29,12 +38,20 @@ it('returns random payload variants for simple object', () => {
       age: 33,
     },
     {
+      name: uuid,
+      age: 33,
+    },
+    {
       name: 'danar',
       age: null,
     },
     {
       name: 'danar',
       age: undefined,
+    },
+    {
+      name: 'danar',
+      age: uuid,
     },
   ]
 
@@ -97,6 +114,14 @@ it('returns random payload variants for nested object', () => {
       },
     },
     {
+      name: uuid,
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: 1,
+      },
+    },
+    {
       name: 'danar',
       age: null,
       monster: {
@@ -114,6 +139,14 @@ it('returns random payload variants for nested object', () => {
     },
     {
       name: 'danar',
+      age: uuid,
+      monster: {
+        name: 'charmender',
+        age: 1,
+      },
+    },
+    {
+      name: 'danar',
       age: 33,
       monster: null,
     },
@@ -121,6 +154,11 @@ it('returns random payload variants for nested object', () => {
       name: 'danar',
       age: 33,
       monster: undefined,
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: uuid,
     },
     {
       name: 'danar',
@@ -142,6 +180,14 @@ it('returns random payload variants for nested object', () => {
       name: 'danar',
       age: 33,
       monster: {
+        name: uuid,
+        age: 1,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
         name: 'charmender',
         age: null,
       },
@@ -152,6 +198,14 @@ it('returns random payload variants for nested object', () => {
       monster: {
         name: 'charmender',
         age: undefined,
+      },
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monster: {
+        name: 'charmender',
+        age: uuid,
       },
     },
   ]
@@ -201,6 +255,11 @@ it('returns random payload variants for object with nested simple array', () => 
       tags: ['beginner'],
     },
     {
+      name: uuid,
+      age: 33,
+      tags: ['beginner'],
+    },
+    {
       name: 'danar',
       age: null,
       tags: ['beginner'],
@@ -208,6 +267,11 @@ it('returns random payload variants for object with nested simple array', () => 
     {
       name: 'danar',
       age: undefined,
+      tags: ['beginner'],
+    },
+    {
+      name: 'danar',
+      age: uuid,
       tags: ['beginner'],
     },
     {
@@ -223,12 +287,22 @@ it('returns random payload variants for object with nested simple array', () => 
     {
       name: 'danar',
       age: 33,
+      tags: uuid,
+    },
+    {
+      name: 'danar',
+      age: 33,
       tags: [null],
     },
     {
       name: 'danar',
       age: 33,
       tags: [undefined],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      tags: [uuid],
     },
   ]
 
@@ -300,6 +374,16 @@ it('returns random payload variants for object with nested array of object', () 
       ],
     },
     {
+      name: uuid,
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+    },
+    {
       name: 'danar',
       age: null,
       monsters: [
@@ -321,6 +405,16 @@ it('returns random payload variants for object with nested array of object', () 
     },
     {
       name: 'danar',
+      age: uuid,
+      monsters: [
+        {
+          name: 'charmender',
+          age: 1,
+        },
+      ],
+    },
+    {
+      name: 'danar',
       age: 33,
       monsters: null,
     },
@@ -332,12 +426,22 @@ it('returns random payload variants for object with nested array of object', () 
     {
       name: 'danar',
       age: 33,
+      monsters: uuid,
+    },
+    {
+      name: 'danar',
+      age: 33,
       monsters: [null],
     },
     {
       name: 'danar',
       age: 33,
       monsters: [undefined],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [uuid],
     },
     {
       name: 'danar',
@@ -364,6 +468,16 @@ it('returns random payload variants for object with nested array of object', () 
       age: 33,
       monsters: [
         {
+          name: uuid,
+          age: 1,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
           name: 'charmender',
           age: null,
         },
@@ -376,6 +490,16 @@ it('returns random payload variants for object with nested array of object', () 
         {
           name: 'charmender',
           age: undefined,
+        },
+      ],
+    },
+    {
+      name: 'danar',
+      age: 33,
+      monsters: [
+        {
+          name: 'charmender',
+          age: uuid,
         },
       ],
     },
