@@ -117,8 +117,13 @@ export class FuzzingRequest {
       const r = responses[i]
 
       if (r) {
+        let pathParams: any = {}
         let reqBody: any
         let query: any
+
+        if (r.config.url) {
+          pathParams = CommonUtils.extractPathParams(path, r.config.url)
+        }
 
         try {
           reqBody = JSONbig.parse(r.config.data)
@@ -139,6 +144,7 @@ export class FuzzingRequest {
           reqBody: reqBody !== undefined ? reqBody : {},
           query: query !== undefined ? query : {},
           response: r.data,
+          pathParams,
         })
       }
     }

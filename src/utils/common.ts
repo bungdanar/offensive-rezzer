@@ -45,4 +45,27 @@ export class CommonUtils {
         qs.stringify(params, { arrayFormat: 'repeat' }),
     }
   }
+
+  static extractPathParams = (
+    template: string,
+    url: string
+  ): { [key: string]: any } => {
+    const templateParts = template.split('/')
+    const urlParts = url.split('/')
+
+    const pathParams: { [key: string]: any } = {}
+
+    for (let i = 0; i < templateParts.length; i++) {
+      if (templateParts[i].startsWith('{') && templateParts[i].endsWith('}')) {
+        const paramName = templateParts[i].substring(
+          1,
+          templateParts[i].length - 1
+        )
+        const paramValue = urlParts[i]
+        pathParams[paramName] = paramValue
+      }
+    }
+
+    return pathParams
+  }
 }

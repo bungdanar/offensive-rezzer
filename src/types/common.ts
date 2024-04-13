@@ -32,6 +32,7 @@ export type ReportStruct = {
     // Methods
     [key: string]: {
       statusCode: number
+      pathParams: any
       reqBody: any
       query: any
       response: any
@@ -48,6 +49,7 @@ export type PrettyReportStruct = {
       [key: number]: {
         numOfRequest: number
         data: {
+          pathParams: any
           reqBody: any
           query: any
           response: any
@@ -61,6 +63,7 @@ export type AddReportData = {
   path: string
   method: string
   statusCode: number
+  pathParams: any
   reqBody: any
   query: any
   response: any
