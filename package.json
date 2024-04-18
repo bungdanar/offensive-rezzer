@@ -4,7 +4,7 @@
   "description": "Blackbox Fuzzer for RESTful API",
   "main": "src/index.ts",
   "scripts": {
-    "start": "npx ts-node src/utils/authentication.ts",
+    "start": "npx ts-node src/index.ts",
     "start:prod": "ts-node src/index.ts",
     "dev": "node --require ts-node/register --inspect-brk src/index.ts",
     "test": "jest --no-cache --verbose"

@@ -1,11 +1,19 @@
 import fs from 'fs/promises'
 import { z } from 'zod'
 import { consoleLogger } from './logger'
+import axios, { AxiosRequestConfig } from 'axios'
+import { CommonUtils } from './common'
+
+type Token = {
+  value: string
+  prefix: string
+  headerName: string
+}
 
 export class Authentication {
   private static authConfigSchema = z.object({
     fullEndpoint: z.string(),
-    verb: z.string(),
+    method: z.string(),
     contentType: z.string(),
     expectCookies: z.boolean(),
     payload: z.object({
@@ -23,9 +31,8 @@ export class Authentication {
 
   static authConfigData: z.infer<typeof this.authConfigSchema> | null = null
 
-  static get includeAuth(): boolean {
-    return this.authConfigData !== null
-  }
+  static cookie: string[] | undefined = undefined
+  static token: Token | undefined = undefined
 
   static loadConfigFile = async () => {
     let configFile: string
@@ -59,15 +66,73 @@ export class Authentication {
     this.authConfigData = validationResult.data
     consoleLogger.info('Auth config file is loaded succesfully')
   }
-}
 
-async function test() {
-  try {
-    await Authentication.loadConfigFile()
-    console.log('AUTH: ', Authentication.authConfigData)
-  } catch (error) {
-    consoleLogger.info('Test error')
+  static getAuthOperation = async () => {
+    if (this.authConfigData === null) return
+
+    const { fullEndpoint, method, contentType, payload, expectCookies, token } =
+      this.authConfigData
+
+    const config: AxiosRequestConfig = {
+      url: fullEndpoint,
+      method,
+      headers: {
+        'Content-Type': contentType,
+      },
+      data: CommonUtils.serializeBodyPayload({
+        [payload.usernameField]: payload.username,
+        [payload.passwordField]: payload.password,
+      }),
+    }
+
+    if (expectCookies) {
+      config.withCredentials = true
+    }
+
+    try {
+      const response = await axios(config)
+
+      if (expectCookies) {
+        this.cookie = response.headers['set-cookie']
+      }
+
+      // Try to extract token
+      const paths = token.extractFromField.split('/')
+      paths.shift()
+
+      let extractedToken: any
+      for (let i = 0; i < paths.length; i++) {
+        const p = paths[i]
+        if (i === 0) {
+          extractedToken = response.data[p]
+        } else {
+          extractedToken = extractedToken[p]
+        }
+      }
+      this.token = {
+        value: extractedToken,
+        prefix: token.headerPrefix,
+        headerName: token.httpHeaderName,
+      }
+
+      consoleLogger.info(
+        'Succeeded to get authentication. Continuing fuzzing with authentication'
+      )
+    } catch (error) {
+      consoleLogger.info(
+        'Failed to get authentication. Continuing fuzzing without authentication'
+      )
+    }
   }
 }
 
-test()
+// async function test() {
+//   try {
+//     await Authentication.loadConfigFile()
+//     await Authentication.getAuthOperation()
+//   } catch (error) {
+//     consoleLogger.info('Test error')
+//   }
+// }
+
+// test()
