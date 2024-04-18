@@ -29,12 +29,21 @@ export class Authentication {
     }),
   })
 
-  static authConfigData: z.infer<typeof this.authConfigSchema> | null = null
+  private static authConfigData: z.infer<typeof this.authConfigSchema> | null =
+    null
 
-  static cookie: string[] | undefined = undefined
-  static token: Token | undefined = undefined
+  private static _cookie: string[] | undefined = undefined
+  private static _token: Token | undefined = undefined
 
-  static loadConfigFile = async () => {
+  static get cookie(): string[] | undefined {
+    return this._cookie
+  }
+
+  static get token(): Token | undefined {
+    return this._token
+  }
+
+  private static loadConfigFile = async () => {
     let configFile: string
     try {
       configFile = await fs.readFile('./auth.json', 'utf-8')
@@ -67,7 +76,7 @@ export class Authentication {
     consoleLogger.info('Auth config file is loaded succesfully')
   }
 
-  static getAuthOperation = async () => {
+  private static getTokenOrCookie = async () => {
     if (this.authConfigData === null) return
 
     const { fullEndpoint, method, contentType, payload, expectCookies, token } =
@@ -93,7 +102,7 @@ export class Authentication {
       const response = await axios(config)
 
       if (expectCookies) {
-        this.cookie = response.headers['set-cookie']
+        this._cookie = response.headers['set-cookie']
       }
 
       // Try to extract token
@@ -109,7 +118,7 @@ export class Authentication {
           extractedToken = extractedToken[p]
         }
       }
-      this.token = {
+      this._token = {
         value: extractedToken,
         prefix: token.headerPrefix,
         headerName: token.httpHeaderName,
@@ -123,6 +132,11 @@ export class Authentication {
         'Failed to get authentication. Continuing fuzzing without authentication'
       )
     }
+  }
+
+  static getAuthOperation = async () => {
+    await this.loadConfigFile()
+    await this.getTokenOrCookie()
   }
 }
 

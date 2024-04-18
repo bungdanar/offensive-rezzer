@@ -3,6 +3,7 @@ import JSONbig from 'json-bigint'
 import { AxiosRequestConfig } from 'axios'
 import qs from 'qs'
 import { Environment } from './environment'
+import { Authentication } from './authentication'
 
 export class CommonUtils {
   static hasParameter = (path: string): boolean => {
@@ -26,17 +27,36 @@ export class CommonUtils {
   static generateConfigForReqWithBody = ():
     | AxiosRequestConfig<any>
     | undefined => {
-    return {
+    const config: AxiosRequestConfig = {
       headers: {
         'Content-Type': 'application/json',
       },
     }
+
+    if (Authentication.cookie !== undefined) {
+      config.withCredentials = true
+      config.headers = {
+        ...config.headers,
+        Cookie: Authentication.cookie.join(';'),
+      }
+    }
+
+    if (Authentication.token !== undefined) {
+      const { value, prefix, headerName } = Authentication.token
+
+      config.headers = {
+        ...config.headers,
+        [headerName]: `${prefix}${value}`,
+      }
+    }
+
+    return config
   }
 
   static generateConfigForReqWithQuery = (
     queryParam: any
   ): AxiosRequestConfig<any> | undefined => {
-    return {
+    const config: AxiosRequestConfig = {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -44,6 +64,25 @@ export class CommonUtils {
       paramsSerializer: (params) =>
         qs.stringify(params, { arrayFormat: 'repeat' }),
     }
+
+    if (Authentication.cookie !== undefined) {
+      config.withCredentials = true
+      config.headers = {
+        ...config.headers,
+        Cookie: Authentication.cookie,
+      }
+    }
+
+    if (Authentication.token !== undefined) {
+      const { value, prefix, headerName } = Authentication.token
+
+      config.headers = {
+        ...config.headers,
+        [headerName]: `${prefix}${value}`,
+      }
+    }
+
+    return config
   }
 
   static extractPathParams = (

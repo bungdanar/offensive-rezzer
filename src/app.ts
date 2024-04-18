@@ -4,10 +4,13 @@ import { FuzzingRequest } from './utils/fuzzing-request'
 import { Environment } from './utils/environment'
 import { consoleLogger, errorLogger } from './utils/logger'
 import { Report } from './utils/report'
+import { Authentication } from './utils/authentication'
 
 export const app = async () => {
   try {
     const apiSpec = await OpenApiParser.validate('api-spec/openapi.json')
+
+    await Authentication.getAuthOperation()
 
     const maxIter = Environment.maxIter
     consoleLogger.info(`Number of fuzzing iterations is ${maxIter}`)
