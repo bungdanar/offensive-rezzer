@@ -6,6 +6,7 @@ import { consoleLogger, errorLogger } from './logger'
 import { Report } from './report'
 import { HttpMethods } from '../enums/http-methods'
 import { CommonUtils } from './common'
+import { wrapper } from 'axios-cookiejar-support'
 
 export class FuzzingRequest {
   // This is based on common implementation
@@ -19,6 +20,8 @@ export class FuzzingRequest {
     HttpMethods.GET,
     HttpMethods.DELETE,
   ]
+
+  private static enhancedAxios = wrapper(axios)
 
   private static handleReqError = (
     url: string,
@@ -52,12 +55,12 @@ export class FuzzingRequest {
 
       switch (method) {
         case HttpMethods.GET: {
-          data = await axios.get<any>(url, config)
+          data = await this.enhancedAxios.get<any>(url, config)
           break
         }
 
         case HttpMethods.DELETE: {
-          data = await axios.delete<any>(url, config)
+          data = await this.enhancedAxios.delete<any>(url, config)
           break
         }
 
@@ -84,17 +87,29 @@ export class FuzzingRequest {
 
       switch (method) {
         case HttpMethods.POST: {
-          data = await axios.post<any>(url, serializedPayload, config)
+          data = await this.enhancedAxios.post<any>(
+            url,
+            serializedPayload,
+            config
+          )
           break
         }
 
         case HttpMethods.PATCH: {
-          data = await axios.patch<any>(url, serializedPayload, config)
+          data = await this.enhancedAxios.patch<any>(
+            url,
+            serializedPayload,
+            config
+          )
           break
         }
 
         case HttpMethods.PUT: {
-          data = await axios.put<any>(url, serializedPayload, config)
+          data = await this.enhancedAxios.put<any>(
+            url,
+            serializedPayload,
+            config
+          )
           break
         }
 

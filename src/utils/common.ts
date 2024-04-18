@@ -35,10 +35,7 @@ export class CommonUtils {
 
     if (Authentication.cookie !== undefined) {
       config.withCredentials = true
-      config.headers = {
-        ...config.headers,
-        Cookie: Authentication.cookie.join(';'),
-      }
+      config.jar = Authentication.jar
     }
 
     if (Authentication.token !== undefined) {
@@ -67,10 +64,7 @@ export class CommonUtils {
 
     if (Authentication.cookie !== undefined) {
       config.withCredentials = true
-      config.headers = {
-        ...config.headers,
-        Cookie: Authentication.cookie,
-      }
+      config.jar = Authentication.jar
     }
 
     if (Authentication.token !== undefined) {

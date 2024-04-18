@@ -3,6 +3,8 @@ import { z } from 'zod'
 import { consoleLogger } from './logger'
 import axios, { AxiosRequestConfig } from 'axios'
 import { CommonUtils } from './common'
+import { CookieJar } from 'tough-cookie'
+import { wrapper } from 'axios-cookiejar-support'
 
 type Token = {
   value: string
@@ -29,11 +31,14 @@ export class Authentication {
     }),
   })
 
+  private static enhancedAxios = wrapper(axios)
+
   private static authConfigData: z.infer<typeof this.authConfigSchema> | null =
     null
 
   private static _cookie: string[] | undefined = undefined
   private static _token: Token | undefined = undefined
+  private static _jar = new CookieJar()
 
   static get cookie(): string[] | undefined {
     return this._cookie
@@ -41,6 +46,10 @@ export class Authentication {
 
   static get token(): Token | undefined {
     return this._token
+  }
+
+  static get jar() {
+    return this._jar
   }
 
   private static loadConfigFile = async () => {
@@ -96,13 +105,17 @@ export class Authentication {
 
     if (expectCookies) {
       config.withCredentials = true
+      config.jar = this._jar
     }
 
     try {
-      const response = await axios(config)
+      const response = await this.enhancedAxios(config)
 
       if (expectCookies) {
         this._cookie = response.headers['set-cookie']
+        this._cookie?.forEach((cookie) => {
+          this._jar.setCookieSync(cookie, response.request.host)
+        })
       }
 
       // Try to extract token
@@ -118,10 +131,13 @@ export class Authentication {
           extractedToken = extractedToken[p]
         }
       }
-      this._token = {
-        value: extractedToken,
-        prefix: token.headerPrefix,
-        headerName: token.httpHeaderName,
+
+      if (extractedToken !== undefined) {
+        this._token = {
+          value: extractedToken,
+          prefix: token.headerPrefix,
+          headerName: token.httpHeaderName,
+        }
       }
 
       consoleLogger.info(
