@@ -154,6 +154,12 @@ export class Authentication {
     await this.loadConfigFile()
     await this.getTokenOrCookie()
   }
+
+  static resetAuth = () => {
+    this._cookie = undefined
+    this._token = undefined
+    this._jar = new CookieJar()
+  }
 }
 
 // async function test() {

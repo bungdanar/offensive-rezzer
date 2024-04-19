@@ -10,13 +10,13 @@ export const app = async () => {
   try {
     const apiSpec = await OpenApiParser.validate('api-spec/openapi.json')
 
-    await Authentication.getAuthOperation()
-
     const maxIter = Environment.maxIter
     consoleLogger.info(`Number of fuzzing iterations is ${maxIter}`)
 
     for (let i = 1; i <= maxIter; i++) {
       consoleLogger.info(`Fuzzing iteration ${i}`)
+
+      await Authentication.getAuthOperation()
 
       const isOdd = i % 2 !== 0
       const allPayloads = await PayloadBuilder.buildFuzzingPayloads(
@@ -24,6 +24,7 @@ export const app = async () => {
         isOdd
       )
       await FuzzingRequest.sendPayloads(apiSpec, allPayloads)
+      Authentication.resetAuth()
     }
     consoleLogger.info('Sending fuzzing payloads to all endpoints is completed')
 
