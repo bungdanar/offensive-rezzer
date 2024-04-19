@@ -5,6 +5,7 @@ import { MethodDetailsHelper } from './check-method-details'
 import { CorrectPayloadBuilder } from './correct-payload-builder'
 import axios, { AxiosResponse } from 'axios'
 import { consoleLogger } from './logger'
+import { wrapper } from 'axios-cookiejar-support'
 
 class PathComponent {
   private _path: string
@@ -48,6 +49,8 @@ class PathComponent {
 type GetParamIdResult = { param: any } | null
 
 export class EndpointPathBuilder {
+  private static enhancedAxios = wrapper(axios)
+
   private static composePathComponents = (path: string): PathComponent[] => {
     const pathStrList = path.split('/')
     if (pathStrList[0] === '') {
@@ -154,7 +157,11 @@ export class EndpointPathBuilder {
       const serializedPayload = CommonUtils.serializeBodyPayload(payload)
 
       try {
-        response = await axios.post<any>(url, serializedPayload, config)
+        response = await this.enhancedAxios.post<any>(
+          url,
+          serializedPayload,
+          config
+        )
         break
       } catch (error) {
         continue
@@ -178,7 +185,7 @@ export class EndpointPathBuilder {
   ): Promise<GetParamIdResult> => {
     const config = CommonUtils.generateConfigForReqWithQuery({})
     try {
-      await axios.get<any>(`${url}/${id}`, config)
+      await this.enhancedAxios.get<any>(`${url}/${id}`, config)
       return { param: id }
     } catch (error) {
       return null
