@@ -12,3 +12,5 @@ LICENSE
 .env.example
 output
 api-spec
+auth.json
+auth.example.json
