@@ -8,5 +8,6 @@ services:
     volumes:
       - './api-spec:/usr/src/app/api-spec'
       - './output:/usr/src/app/output'
+      - './auth.json:/usr/src/app/auth.json'
     env_file:
       - .env

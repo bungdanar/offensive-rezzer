@@ -1,0 +1,17 @@
+{
+  "fullEndpoint": "",
+  "method": "",
+  "contentType": "",
+  "expectCookies": "",
+  "payload": {
+    "username": "",
+    "password": "",
+    "usernameField": "",
+    "passwordField": ""
+  },
+  "token": {
+    "headerPrefix": "",
+    "extractFromField": "",
+    "httpHeaderName": ""
+  }
+}

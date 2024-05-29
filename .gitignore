@@ -4,3 +4,4 @@ build/
 .env
 output
 api-spec
+auth.json
